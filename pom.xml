@@ -22,7 +22,12 @@
             <version>2.8.6</version>
             <scope>compile</scope>
         </dependency>
-
+        <dependency>
+            <groupId>moe.langua.lab.utils.logger</groupId>
+            <artifactId>MelonLogger</artifactId>
+            <version>3.0.2</version>
+            <scope>compile</scope>
+        </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
