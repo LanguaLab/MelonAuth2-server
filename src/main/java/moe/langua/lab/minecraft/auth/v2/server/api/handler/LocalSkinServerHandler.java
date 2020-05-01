@@ -22,7 +22,7 @@ public class LocalSkinServerHandler extends AbstractHandler {
     @Override
     public void process(HttpExchange httpExchange) {
         super.process(httpExchange);
-        if(httpExchange.getResponseCode()!=-1) return;
+        if (httpExchange.getResponseCode() != -1) return;
 
         File fileToGet = new File(dataRoot, Utils.getLastChild(httpExchange.getRequestURI()));
         if (!fileToGet.exists()) {

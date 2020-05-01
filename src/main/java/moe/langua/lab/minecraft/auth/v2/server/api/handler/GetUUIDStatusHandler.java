@@ -28,7 +28,7 @@ public class GetUUIDStatusHandler extends AbstractHandler {
     @Override
     public void process(HttpExchange httpExchange) {
         super.process(httpExchange);
-        if(httpExchange.getResponseCode()!=-1) return;
+        if (httpExchange.getResponseCode() != -1) return;
 
         UUID uniqueID;
         try {
@@ -39,6 +39,7 @@ public class GetUUIDStatusHandler extends AbstractHandler {
         }
         if (dataSearcher.getPlayerStatus(uniqueID) == 0) {// block
             if (!verificationCodeManager.hasVerification(uniqueID) || verificationCodeManager.getVerification(uniqueID).getExpireTime() - System.currentTimeMillis() < Config.instance.verificationRegenTime/*has no existing verification OR exist verification remains less than regen time*/) {
+                verificationCodeManager.removeVerification(uniqueID);
                 //create new verification
                 BufferedImage playerSkin;
                 String playerName;

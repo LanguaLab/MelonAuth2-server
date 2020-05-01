@@ -25,7 +25,7 @@ public class VerificationTryHandler extends AbstractHandler {
     @Override
     public void process(HttpExchange httpExchange) {
         super.process(httpExchange);
-        if(httpExchange.getResponseCode()!=-1) return;
+        if (httpExchange.getResponseCode() != -1) return;
 
         int verificationCode;
         try {
@@ -34,7 +34,11 @@ public class VerificationTryHandler extends AbstractHandler {
             errorReturn(httpExchange, 404, NOT_FOUND_ERROR);
             return;
         }
-        if (!verificationCodeManager.hasVerification(verificationCode) || verificationCodeManager.getVerification(verificationCode).isExpired()) {
+        if (!verificationCodeManager.hasVerification(verificationCode)) {
+            errorReturn(httpExchange, 404, NOT_FOUND_ERROR);
+            return;
+        } else if (verificationCodeManager.getVerification(verificationCode).isExpired()) {
+            verificationCodeManager.removeVerification(verificationCode);
             errorReturn(httpExchange, 404, NOT_FOUND_ERROR);
             return;
         }
