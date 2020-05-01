@@ -27,10 +27,9 @@ public class GetUUIDStatusHandler extends AbstractHandler {
 
     @Override
     public void process(HttpExchange httpExchange) {
-        if (!getLimiter().getUsability(httpExchange.getRemoteAddress().getAddress())) {
-            Utils.server.errorReturn(httpExchange, 429, Utils.server.TOO_MANY_REQUEST_ERROR.clone().setExtra("" + (getLimiter().getNextReset() - System.currentTimeMillis())));
-            return;
-        }
+        super.process(httpExchange);
+        if(httpExchange.getResponseCode()!=-1) return;
+
         UUID uniqueID;
         try {
             uniqueID = UUID.fromString(Utils.getLastChild(httpExchange.getRequestURI()));

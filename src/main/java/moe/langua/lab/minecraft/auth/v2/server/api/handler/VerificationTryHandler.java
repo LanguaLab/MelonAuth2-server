@@ -24,10 +24,9 @@ public class VerificationTryHandler extends AbstractHandler {
 
     @Override
     public void process(HttpExchange httpExchange) {
-        if (!getLimiter().getUsabilityAndAdd1(httpExchange.getRemoteAddress().getAddress())) {
-            errorReturn(httpExchange, 429, Utils.server.TOO_MANY_REQUEST_ERROR.clone().setExtra("" + (getLimiter().getNextReset() - System.currentTimeMillis())));
-            return;
-        }
+        super.process(httpExchange);
+        if(httpExchange.getResponseCode()!=-1) return;
+
         int verificationCode;
         try {
             verificationCode = Integer.parseInt(Utils.getLastChild(httpExchange.getRequestURI()));

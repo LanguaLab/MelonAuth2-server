@@ -21,10 +21,9 @@ public class LocalSkinServerHandler extends AbstractHandler {
 
     @Override
     public void process(HttpExchange httpExchange) {
-        if (!getLimiter().getUsabilityAndAdd1(httpExchange.getRemoteAddress().getAddress())) {
-            Utils.server.errorReturn(httpExchange, 429, Utils.server.TOO_MANY_REQUEST_ERROR.clone().setExtra("" + (getLimiter().getNextReset() - System.currentTimeMillis())));
-            return;
-        }
+        super.process(httpExchange);
+        if(httpExchange.getResponseCode()!=-1) return;
+
         File fileToGet = new File(dataRoot, Utils.getLastChild(httpExchange.getRequestURI()));
         if (!fileToGet.exists()) {
             Utils.server.errorReturn(httpExchange, 404, Utils.server.NOT_FOUND_ERROR);
