@@ -22,11 +22,12 @@ public class Server {
         }
         VerificationCodeManager verificationCodeManager = new VerificationCodeManager();
 
-        httpServer.createContext("/", new NotFoundHandler());
-        httpServer.createContext("/get/uuid/", new GetUUIDStatusHandler(Config.instance.minecraftServerFailedAttempts.get(0), Config.instance.minecraftServerFailedAttempts.get(1), searcher, verificationCodeManager, skinServer));
-        httpServer.createContext("/get/code/", new GetVerificationCodeDetailHandler(Config.instance.verificationPublicAPIUsageLimit.getVerificationCodeDetail.get(0), Config.instance.verificationPublicAPIUsageLimit.getVerificationCodeDetail.get(1), verificationCodeManager));
-        httpServer.createContext("/get/skin/", new LocalSkinServerHandler(Config.instance.skinServerSettings.usageLimit.get(0), Config.instance.skinServerSettings.usageLimit.get(1), skinServer.getDataRoot()));
-        httpServer.createContext("/try/", new VerificationTryHandler(Config.instance.verificationPublicAPIUsageLimit.sendVerificationRequest.get(0), Config.instance.verificationPublicAPIUsageLimit.sendVerificationRequest.get(1), verificationCodeManager));
+        //initialize handlers
+        new NotFoundHandler(-1, 0, httpServer, "/");
+        new GetUUIDStatusHandler(Config.instance.minecraftServerFailedAttempts.get(0), Config.instance.minecraftServerFailedAttempts.get(1), httpServer, "/get/uuid/", searcher, verificationCodeManager, skinServer);
+        new GetVerificationCodeDetailHandler(Config.instance.verificationPublicAPIUsageLimit.getVerificationCodeDetail.get(0), Config.instance.verificationPublicAPIUsageLimit.getVerificationCodeDetail.get(1), httpServer, "/get/code/", verificationCodeManager);
+        new LocalSkinServerHandler(Config.instance.skinServerSettings.usageLimit.get(0), Config.instance.skinServerSettings.usageLimit.get(1), httpServer, "/get/skin/", skinServer.getDataRoot());
+        new VerificationTryHandler(Config.instance.verificationPublicAPIUsageLimit.sendVerificationRequest.get(0), Config.instance.verificationPublicAPIUsageLimit.sendVerificationRequest.get(1), httpServer, "/try/", verificationCodeManager);
         httpServer.start();
     }
 }

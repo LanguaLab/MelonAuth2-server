@@ -1,6 +1,7 @@
 package moe.langua.lab.minecraft.auth.v2.server.api.handler;
 
 import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpServer;
 import moe.langua.lab.minecraft.auth.v2.server.json.mojang.Profile;
 import moe.langua.lab.minecraft.auth.v2.server.json.server.Config;
 import moe.langua.lab.minecraft.auth.v2.server.json.server.VerificationNotice;
@@ -17,8 +18,8 @@ public class GetUUIDStatusHandler extends AbstractHandler {
     private final VerificationCodeManager verificationCodeManager;
     private final SkinServer skinServer;
 
-    public GetUUIDStatusHandler(int limit, long periodInMilliseconds, DataSearcher dataSearcher, VerificationCodeManager verificationCodeManager, SkinServer skinServer) {
-        super(limit, periodInMilliseconds);
+    public GetUUIDStatusHandler(int limit, long periodInMilliseconds, HttpServer httpServer, String handlePath, DataSearcher dataSearcher, VerificationCodeManager verificationCodeManager, SkinServer skinServer) {
+        super(limit, periodInMilliseconds, httpServer, handlePath);
         this.dataSearcher = dataSearcher;
         this.verificationCodeManager = verificationCodeManager;
         this.skinServer = skinServer;
@@ -26,8 +27,8 @@ public class GetUUIDStatusHandler extends AbstractHandler {
 
     @Override
     public void process(HttpExchange httpExchange) {
-        if (!limiter.getUsability(httpExchange.getRemoteAddress().getAddress())) {
-            Utils.server.errorReturn(httpExchange, 429, Utils.server.TOO_MANY_REQUEST_ERROR.clone().setExtra("" + (limiter.getNextReset() - System.currentTimeMillis())));
+        if (!getLimiter().getUsability(httpExchange.getRemoteAddress().getAddress())) {
+            Utils.server.errorReturn(httpExchange, 429, Utils.server.TOO_MANY_REQUEST_ERROR.clone().setExtra("" + (getLimiter().getNextReset() - System.currentTimeMillis())));
             return;
         }
         UUID uniqueID;
@@ -53,7 +54,7 @@ public class GetUUIDStatusHandler extends AbstractHandler {
                     playerSkin = Utils.getSkinFromProfile(profile);
                 } catch (IOException e) {
                     Utils.server.errorReturn(httpExchange, 500, Utils.server.SERVER_NETWORK_ERROR);
-                    Utils.logger.log(LogRecord.Level.WARN,e.toString());
+                    Utils.logger.log(LogRecord.Level.WARN, e.toString());
                     return;
                 }
                 int[] verificationCode = Utils.generateRandomVerificationCodeArray();
@@ -67,18 +68,18 @@ public class GetUUIDStatusHandler extends AbstractHandler {
                     int code = verificationCodeManager.newVerification(uniqueID, verification);
                     VerificationNotice verificationNotice = new VerificationNotice(code, Config.instance.verificationExpireTime);
                     Utils.server.writeJSONAndSend(httpExchange, 200, Utils.gson.toJson(verificationNotice));
-                    Utils.logger.log(LogRecord.Level.INFO,"New verification code created: "+code+" for "+profile.name+" ("+uniqueID.toString()+")");
+                    Utils.logger.log(LogRecord.Level.INFO, "New verification code created: " + code + " for " + profile.name + " (" + uniqueID.toString() + ")");
                 } catch (IOException e) {
-                    Utils.logger.log(LogRecord.Level.WARN,e.toString());
+                    Utils.logger.log(LogRecord.Level.WARN, e.toString());
                     Utils.server.errorReturn(httpExchange, 500, Utils.server.SERVER_NETWORK_ERROR);
                 }
             } else {//send exist verification
                 Utils.server.writeJSONAndSend(httpExchange, 200, Utils.gson.toJson(new VerificationNotice(verificationCodeManager.getVerificationCode(uniqueID), verificationCodeManager.getVerification(uniqueID).getExpireTime() - System.currentTimeMillis())));
-                Utils.logger.log(LogRecord.Level.FINE,"Verification code request: "+verificationCodeManager.getVerificationCode(uniqueID)+"("+uniqueID.toString()+")");
+                Utils.logger.log(LogRecord.Level.FINE, "Verification code request: " + verificationCodeManager.getVerificationCode(uniqueID) + "(" + uniqueID.toString() + ")");
             }
         } else {//pass
             Utils.server.returnNoContent(httpExchange, 204);
-            Utils.logger.log(LogRecord.Level.FINE,"Server login pass: "+uniqueID.toString());
+            Utils.logger.log(LogRecord.Level.FINE, "Server login pass: " + uniqueID.toString());
         }
     }
 }

@@ -1,8 +1,5 @@
 package moe.langua.lab.minecraft.auth.v2.server.api;
 
-import moe.langua.lab.minecraft.auth.v2.server.util.Utils;
-import moe.langua.lab.utils.logger.utils.LogRecord;
-
 import java.net.InetAddress;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -15,13 +12,15 @@ public class Limiter {
 
     public Limiter(int limit, long periodInMilliseconds) {
         LIMIT = limit;
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                usageRecord.clear();
-                nextReset = System.currentTimeMillis() + periodInMilliseconds;
-            }
-        }, 0, periodInMilliseconds);
+        if (limit > 0) {
+            new Timer().schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    usageRecord.clear();
+                    nextReset = System.currentTimeMillis() + periodInMilliseconds;
+                }
+            }, 0, periodInMilliseconds);
+        }
     }
 
     public boolean getUsability(InetAddress address) {

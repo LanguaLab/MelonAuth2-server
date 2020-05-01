@@ -44,6 +44,16 @@ public class Bootstrap {
             System.exit(-1);
             return;
         }
+
+        if (config.sourceCode.length() == 0) {
+            System.out.println("MelonAuth2-server  Copyright (C) 2020  LanguaLab");
+            System.out.println("MelonAuth2-server is distributed under the terms of the GNU Affero General Public License version 3 (AGPLv3), which means you should make sure that users can get the source code of this copy.");
+            System.out.println("Before using MelonAuth2-server, you need to fill in the 'sourceCode' object in 'config.json'. The text you fill in should be a url, which include the source code of this MelonAuth2-server copy.");
+            System.out.println("For terms and conditions of AGPLv3, see https://www.gnu.org/licenses/agpl-3.0.html");
+            System.exit(-2);
+            return;
+        }
+
         Config.instance = config;
         System.out.println("Initializing logger...");
         Utils.logger.addHandler(new ConsoleLogHandler(LogRecord.Level.getFromName(config.minimumLogRecordLevel)));
@@ -73,7 +83,7 @@ public class Bootstrap {
 
         Utils.logger.log(LogRecord.Level.INFO, "Initializing SkinServer...");
         File skinServerRoot = new File(new File(dataRoot.getAbsolutePath()) + config.skinServerSettings.dataRoot);
-        SkinServer skinServer = new SkinServer(skinServerRoot, config.skinServerSettings.url, config.verificationExpireTime);
+        SkinServer skinServer = new SkinServer(skinServerRoot, config.aPIUrl, config.verificationExpireTime);
         Runtime.getRuntime().addShutdownHook(new Thread(skinServer::purgeAll));
 
         Utils.logger.log(LogRecord.Level.INFO, "API Starting...");

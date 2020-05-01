@@ -15,6 +15,9 @@ public class Config {
     @SerializedName("secretKey")
     @Expose
     public String secretKey;
+    @SerializedName("APIUrl")
+    @Expose
+    public String aPIUrl;
     @SerializedName("CORSList")
     @Expose
     public List<String> CORSList;
@@ -39,11 +42,15 @@ public class Config {
     @SerializedName("minimumLogRecordLevel")
     @Expose
     public String minimumLogRecordLevel;
+    @SerializedName("sourceCode")
+    @Expose
+    public String sourceCode;
 
     public static Config getDefault() {
         Utils.logger.log(LogRecord.Level.INFO, "First startup detected. Generating default config file...");
         Config config = new Config();
         config.secretKey = UUID.randomUUID().toString();
+        config.aPIUrl = "http://127.0.0.1:11014";
         config.CORSList = new ArrayList<>();
         config.skinServerSettings = SkinServerSettings.getDefault();
         config.verificationExpireTime = 1800000L;
@@ -53,11 +60,14 @@ public class Config {
         config.minecraftServerFailedAttempts.add(1);
         config.minecraftServerFailedAttempts.add(60000);
         config.minimumLogRecordLevel = "fine";
+        config.sourceCode = "";
         return config;
     }
 
     public void check() {
         if (secretKey == null) secretKey = UUID.randomUUID().toString();
+        if (aPIUrl == null) aPIUrl = "http://127.0.0.1:11014";
+        aPIUrl = Utils.removeSlashAtTheEnd(aPIUrl);
         if (CORSList == null) CORSList = new ArrayList<>();
         for (int index = 0; index < CORSList.size(); index++) {
             CORSList.set(index, Utils.removeSlashAtTheEnd(CORSList.get(index)));
@@ -75,6 +85,7 @@ public class Config {
         }
         if (minimumLogRecordLevel == null) minimumLogRecordLevel = "fine";
         if (LogRecord.Level.getFromName(minimumLogRecordLevel) == null) minimumLogRecordLevel = "fine";
+        if (sourceCode == null) sourceCode = "";
         skinServerSettings.check();
         verificationPublicAPIUsageLimit.check();
     }
