@@ -24,22 +24,16 @@ public class VerificationTryHandler extends AbstractHandler {
 
     @Override
     public void process(HttpExchange httpExchange) {
-        super.process(httpExchange);
-        if (httpExchange.getResponseCode() != -1) return;
-
         int verificationCode;
         try {
             verificationCode = Integer.parseInt(Utils.getLastChild(httpExchange.getRequestURI()));
         } catch (NumberFormatException e) {
-            errorReturn(httpExchange, 404, NOT_FOUND_ERROR);
             return;
         }
         if (!verificationCodeManager.hasVerification(verificationCode)) {
-            errorReturn(httpExchange, 404, NOT_FOUND_ERROR);
             return;
         } else if (verificationCodeManager.getVerification(verificationCode).isExpired()) {
             verificationCodeManager.removeVerification(verificationCode);
-            errorReturn(httpExchange, 404, NOT_FOUND_ERROR);
             return;
         }
 
@@ -56,11 +50,10 @@ public class VerificationTryHandler extends AbstractHandler {
             //success
             verificationCodeManager.removeVerification(verificationCode);
             Utils.server.writeJSONAndSend(httpExchange, 200, Utils.gson.toJson(Message.getFromString("Your account has been verified successfully")));
-            Utils.logger.log(LogRecord.Level.FINE, verificationCodeManager.getVerification(verificationCode).getPlayerName() + " (" + verificationCodeManager.getVerification(verificationCode).getUniqueID().toString() + ") has completed auth challenge.");
+            Utils.logger.log(LogRecord.Level.INFO, verificationCodeManager.getVerification(verificationCode).getPlayerName() + " (" + verificationCodeManager.getVerification(verificationCode).getUniqueID().toString() + ") has completed verification challenge.");
         } else {
             //failed
             Utils.server.returnNoContent(httpExchange, 304);
-            Utils.logger.log(LogRecord.Level.DEBUG, verificationCodeManager.getVerification(verificationCode).getPlayerName() + " (" + verificationCodeManager.getVerification(verificationCode).getUniqueID().toString() + ") Failed to auth.");
         }
     }
 }

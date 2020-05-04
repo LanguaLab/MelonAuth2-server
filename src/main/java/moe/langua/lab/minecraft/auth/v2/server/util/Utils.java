@@ -162,7 +162,7 @@ public class Utils {
         //public static final Error VERIFICATION_EXPIRED_ERROR = new Error("Verification Expired", "Your Verification has been expired, please reconnect to server and get a new verification code", null);
         public static final Error SERVER_NETWORK_ERROR = new Error("Server Network Error", "Server network communication error, please try again later", null);
         public static final Error INTERNAL_ERROR = new Error("Internal Server Error", "Internal error occurred", null);
-        public static final Error VERIFICATION_FAILED = new Error("Verification Failed", "Wrong skin pixel detected, please check your skin upload and try again", null);
+        public static final Error BAD_REQUEST = new Error("Bad Request", null, null);
 
         public static void errorReturn(HttpExchange httpExchange, int responseCode, Error error) {
             writeJSONAndSend(httpExchange, responseCode, gson.toJson(error));

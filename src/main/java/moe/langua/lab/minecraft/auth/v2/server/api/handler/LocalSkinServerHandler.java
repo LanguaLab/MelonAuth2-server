@@ -21,16 +21,10 @@ public class LocalSkinServerHandler extends AbstractHandler {
 
     @Override
     public void process(HttpExchange httpExchange) {
-        super.process(httpExchange);
-        if (httpExchange.getResponseCode() != -1) return;
-
         File fileToGet = new File(dataRoot, Utils.getLastChild(httpExchange.getRequestURI()));
-        if (!fileToGet.exists()) {
-            Utils.server.errorReturn(httpExchange, 404, Utils.server.NOT_FOUND_ERROR);
-            return;
-        }
-        byte[] bytes = new byte[(int) fileToGet.length()];
+        if (!fileToGet.exists()) return;
 
+        byte[] bytes = new byte[(int) fileToGet.length()]; //Suitable for small file smaller than about 2GB
         try {
             FileInputStream fileInputStream = new FileInputStream(fileToGet);
             BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream);

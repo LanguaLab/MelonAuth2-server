@@ -9,8 +9,7 @@ import moe.langua.lab.minecraft.auth.v2.server.util.Verification;
 import moe.langua.lab.minecraft.auth.v2.server.util.VerificationCodeManager;
 import moe.langua.lab.utils.logger.utils.LogRecord;
 
-import static moe.langua.lab.minecraft.auth.v2.server.util.Utils.server.NOT_FOUND_ERROR;
-import static moe.langua.lab.minecraft.auth.v2.server.util.Utils.server.errorReturn;
+import static moe.langua.lab.minecraft.auth.v2.server.util.Utils.server.*;
 
 public class GetVerificationCodeDetailHandler extends AbstractHandler {
     private final VerificationCodeManager verificationCodeManager;
@@ -22,26 +21,20 @@ public class GetVerificationCodeDetailHandler extends AbstractHandler {
 
     @Override
     public void process(HttpExchange httpExchange) {
-        super.process(httpExchange);
-        if (httpExchange.getResponseCode() != -1) return;
         int verificationCode;
         try {
             verificationCode = Integer.parseInt(Utils.getLastChild(httpExchange.getRequestURI()));
         } catch (NumberFormatException e) {
-            errorReturn(httpExchange, 404, NOT_FOUND_ERROR);
             return;
         }
         if (!verificationCodeManager.hasVerification(verificationCode)) {
-            errorReturn(httpExchange, 404, NOT_FOUND_ERROR);
             return;
         } else if (verificationCodeManager.getVerification(verificationCode).isExpired()) {
             verificationCodeManager.removeVerification(verificationCode);
-            errorReturn(httpExchange, 404, NOT_FOUND_ERROR);
             return;
         }
         Verification verification = verificationCodeManager.getVerification(verificationCode);
         VerificationCodeDetail verificationCodeDetail = new VerificationCodeDetail(verification);
         Utils.server.writeJSONAndSend(httpExchange, 200, Utils.gson.toJson(verificationCodeDetail));
-        Utils.logger.log(LogRecord.Level.FINE, "Sending detail of verification code " + verificationCode);
     }
 }

@@ -27,9 +27,6 @@ public class GetUUIDStatusHandler extends AbstractHandler {
 
     @Override
     public void process(HttpExchange httpExchange) {
-        super.process(httpExchange);
-        if (httpExchange.getResponseCode() != -1) return;
-
         UUID uniqueID;
         try {
             uniqueID = UUID.fromString(Utils.getLastChild(httpExchange.getRequestURI()));
@@ -46,10 +43,7 @@ public class GetUUIDStatusHandler extends AbstractHandler {
                 Profile profile;
                 try {
                     profile = Utils.getPlayerProfile(uniqueID);
-                    if (profile == null) {
-                        Utils.server.errorReturn(httpExchange, 404, Utils.server.NOT_FOUND_ERROR);
-                        return;
-                    }
+                    if (profile == null) return;
                     playerName = profile.name;
                     playerSkin = Utils.getSkinFromProfile(profile);
                 } catch (IOException e) {
@@ -79,7 +73,6 @@ public class GetUUIDStatusHandler extends AbstractHandler {
             }
         } else {//pass
             Utils.server.returnNoContent(httpExchange, 204);
-            Utils.logger.log(LogRecord.Level.FINE, "Server login pass: " + uniqueID.toString());
         }
     }
 }

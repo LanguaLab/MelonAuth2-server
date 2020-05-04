@@ -55,7 +55,6 @@ public class Bootstrap {
         }
 
         Config.instance = config;
-        System.out.println("Initializing logger...");
         Utils.logger.addHandler(new ConsoleLogHandler(LogRecord.Level.getFromName(config.minimumLogRecordLevel)));
 
         File logFolder = new File(dataRoot.getAbsolutePath() + "/logs");

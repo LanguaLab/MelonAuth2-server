@@ -23,23 +23,34 @@ public abstract class AbstractHandler implements HttpHandler {
     }
 
     public void process(HttpExchange httpExchange) {
-        String x_real_ip_header = httpExchange.getRequestHeaders().getFirst("X-Real-IP");
-        InetAddress address;
-        try {
-            address = x_real_ip_header == null ? httpExchange.getRemoteAddress().getAddress() : InetAddress.getByName(x_real_ip_header);
-        } catch (UnknownHostException e) {
-            Utils.logger.log(LogRecord.Level.ERROR, e.toString());
-            Utils.logger.log(LogRecord.Level.ERROR, "It may caused by inappropriate reverse proxy configurations, please see 'url of reverse proxy configuration manual here' and reconfiguration your reverse proxy server.");
-            return;
-        }
-        if (!getLimiter().getUsabilityAndAdd1(address)) {
-            Utils.server.errorReturn(httpExchange, 429, Utils.server.TOO_MANY_REQUEST_ERROR.clone().setExtra("" + (getLimiter().getNextReset() - System.currentTimeMillis())));
-        }
+
     }
 
     @Override
     public void handle(HttpExchange httpExchange) {
-        new Thread(() -> process(httpExchange), workerName).start();
+        new Thread(() -> {
+            long startTime = System.nanoTime();
+            if(!httpExchange.getRequestHeaders().containsKey("X-Real-IP")){
+                Utils.server.errorReturn(httpExchange,400, Utils.server.BAD_REQUEST);
+                return;
+            }
+            InetAddress requestAddress;
+            try {
+                requestAddress = InetAddress.getByName(httpExchange.getRequestHeaders().getFirst("X-Real-IP"));
+            } catch (UnknownHostException e) {
+                Utils.logger.log(LogRecord.Level.ERROR, e.toString());
+                Utils.logger.log(LogRecord.Level.ERROR, "It may caused by inappropriate reverse proxy configurations, please see 'url of reverse proxy configuration manual here' and reconfiguration your reverse proxy server.");
+                return;
+            }
+            if (!getLimiter().getUsabilityAndAdd1(requestAddress)) {
+                Utils.server.errorReturn(httpExchange, 429, Utils.server.TOO_MANY_REQUEST_ERROR.clone().setExtra("" + (getLimiter().getNextReset() - System.currentTimeMillis())));
+                return;
+            }else{
+                process(httpExchange);//TODO in other handlers remove 404 and 429
+                if(httpExchange.getResponseCode()==-1) Utils.server.errorReturn(httpExchange,404, Utils.server.NOT_FOUND_ERROR);
+            }
+            Utils.logger.log(LogRecord.Level.FINE,requestAddress.toString()+" GET "+httpExchange.getRequestURI().getPath()+" "+httpExchange.getResponseCode()+" "+((System.nanoTime()-startTime)/1000000D)+"ms");
+        }, workerName).start();
     }
 
 }
