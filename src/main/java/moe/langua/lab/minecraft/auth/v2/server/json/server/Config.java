@@ -42,9 +42,12 @@ public class Config {
     @SerializedName("minimumLogRecordLevel")
     @Expose
     public String minimumLogRecordLevel;
-    @SerializedName("sourceCode")
+    @SerializedName("applicationOwner")
     @Expose
-    public String sourceCode;
+    public String applicationOwner;
+    @SerializedName("applicationDescription")
+    @Expose
+    public String applicationDescription;
 
     public static Config getDefault() {
         Utils.logger.log(LogRecord.Level.INFO, "First startup detected. Generating default config file...");
@@ -60,7 +63,8 @@ public class Config {
         config.minecraftServerFailedAttempts.add(1);
         config.minecraftServerFailedAttempts.add(60000);
         config.minimumLogRecordLevel = "fine";
-        config.sourceCode = "";
+        config.applicationOwner = "LanguaLab";
+        config.applicationDescription = "MelonAuth 2 public api";
         return config;
     }
 
@@ -85,7 +89,8 @@ public class Config {
         }
         if (minimumLogRecordLevel == null) minimumLogRecordLevel = "fine";
         if (LogRecord.Level.getFromName(minimumLogRecordLevel) == null) minimumLogRecordLevel = "fine";
-        if (sourceCode == null) sourceCode = "";
+        if (applicationOwner == null) applicationOwner = "LanguaLab";
+        if (applicationDescription == null) applicationDescription = "MelonAuth 2 public api";
         skinServerSettings.check();
         verificationPublicAPIUsageLimit.check();
     }

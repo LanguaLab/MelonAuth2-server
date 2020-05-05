@@ -26,12 +26,14 @@ public abstract class AbstractHandler implements HttpHandler {
 
     }
 
+    int counter = 0;
     @Override
     public void handle(HttpExchange httpExchange) {
         new Thread(() -> {
             long startTime = System.nanoTime();
             if(!httpExchange.getRequestHeaders().containsKey("X-Real-IP")){
                 Utils.server.errorReturn(httpExchange,400, Utils.server.BAD_REQUEST);
+                Utils.logger.log(LogRecord.Level.WARN,httpExchange.getRemoteAddress().toString()+" tried to GET "+httpExchange.getRequestURI().getPath()+" with a bad request (No X-Real-IP Header).");
                 return;
             }
             InetAddress requestAddress;
@@ -44,9 +46,8 @@ public abstract class AbstractHandler implements HttpHandler {
             }
             if (!getLimiter().getUsabilityAndAdd1(requestAddress)) {
                 Utils.server.errorReturn(httpExchange, 429, Utils.server.TOO_MANY_REQUEST_ERROR.clone().setExtra("" + (getLimiter().getNextReset() - System.currentTimeMillis())));
-                return;
             }else{
-                process(httpExchange);//TODO in other handlers remove 404 and 429
+                process(httpExchange);
                 if(httpExchange.getResponseCode()==-1) Utils.server.errorReturn(httpExchange,404, Utils.server.NOT_FOUND_ERROR);
             }
             Utils.logger.log(LogRecord.Level.FINE,requestAddress.toString()+" GET "+httpExchange.getRequestURI().getPath()+" "+httpExchange.getResponseCode()+" "+((System.nanoTime()-startTime)/1000000D)+"ms");
