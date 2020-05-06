@@ -3,7 +3,6 @@ package moe.langua.lab.minecraft.auth.v2.server.api.handler;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import moe.langua.lab.minecraft.auth.v2.server.json.server.Message;
-import moe.langua.lab.minecraft.auth.v2.server.util.AbstractHandler;
 import moe.langua.lab.minecraft.auth.v2.server.util.Utils;
 import moe.langua.lab.minecraft.auth.v2.server.util.VerificationCodeManager;
 import moe.langua.lab.utils.logger.utils.LogRecord;

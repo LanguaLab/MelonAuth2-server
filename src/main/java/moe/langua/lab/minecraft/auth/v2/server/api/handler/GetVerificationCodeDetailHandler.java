@@ -3,13 +3,9 @@ package moe.langua.lab.minecraft.auth.v2.server.api.handler;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import moe.langua.lab.minecraft.auth.v2.server.json.server.VerificationCodeDetail;
-import moe.langua.lab.minecraft.auth.v2.server.util.AbstractHandler;
 import moe.langua.lab.minecraft.auth.v2.server.util.Utils;
 import moe.langua.lab.minecraft.auth.v2.server.util.Verification;
 import moe.langua.lab.minecraft.auth.v2.server.util.VerificationCodeManager;
-import moe.langua.lab.utils.logger.utils.LogRecord;
-
-import static moe.langua.lab.minecraft.auth.v2.server.util.Utils.server.*;
 
 public class GetVerificationCodeDetailHandler extends AbstractHandler {
     private final VerificationCodeManager verificationCodeManager;

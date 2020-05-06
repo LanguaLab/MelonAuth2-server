@@ -1,9 +1,10 @@
-package moe.langua.lab.minecraft.auth.v2.server.util;
+package moe.langua.lab.minecraft.auth.v2.server.api.handler;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import moe.langua.lab.minecraft.auth.v2.server.api.Limiter;
+import moe.langua.lab.minecraft.auth.v2.server.util.Utils;
 import moe.langua.lab.utils.logger.utils.LogRecord;
 
 import java.net.InetAddress;
@@ -26,7 +27,6 @@ public abstract class AbstractHandler implements HttpHandler {
 
     }
 
-    int counter = 0;
     @Override
     public void handle(HttpExchange httpExchange) {
         new Thread(() -> {
@@ -45,11 +45,10 @@ public abstract class AbstractHandler implements HttpHandler {
                 return;
             }
             if (!getLimiter().getUsabilityAndAdd1(requestAddress)) {
-                Utils.server.errorReturn(httpExchange, 429, Utils.server.TOO_MANY_REQUEST_ERROR.clone().setExtra("" + (getLimiter().getNextReset() - System.currentTimeMillis())));
-            }else{
-                process(httpExchange);
-                if(httpExchange.getResponseCode()==-1) Utils.server.errorReturn(httpExchange,404, Utils.server.NOT_FOUND_ERROR);
+                return;
             }
+            process(httpExchange);
+            if(httpExchange.getResponseCode()==-1) Utils.server.errorReturn(httpExchange,404, Utils.server.NOT_FOUND_ERROR);
             Utils.logger.log(LogRecord.Level.FINE,requestAddress.toString()+" GET "+httpExchange.getRequestURI().getPath()+" "+httpExchange.getResponseCode()+" "+((System.nanoTime()-startTime)/1000000D)+"ms");
         }, workerName).start();
     }

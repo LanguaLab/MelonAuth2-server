@@ -4,7 +4,6 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import moe.langua.lab.minecraft.auth.v2.server.json.server.Config;
 import moe.langua.lab.minecraft.auth.v2.server.json.server.Overview;
-import moe.langua.lab.minecraft.auth.v2.server.util.AbstractHandler;
 import moe.langua.lab.minecraft.auth.v2.server.util.Utils;
 
 
