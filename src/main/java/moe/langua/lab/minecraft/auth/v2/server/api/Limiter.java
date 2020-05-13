@@ -12,10 +12,8 @@ public class Limiter {
     private final int LIMIT;
     private final ConcurrentHashMap<InetAddress, Integer> usageRecord = new ConcurrentHashMap<>();
     private long nextReset = 0;
-    private final String handlerHandlePath;
 
     public Limiter(int limit, long periodInMilliseconds, String handlerHandlePath) {
-        this.handlerHandlePath = handlerHandlePath;
         LIMIT = limit;
         if (limit > 0) {
             new Timer().schedule(new TimerTask() {

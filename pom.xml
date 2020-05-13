@@ -17,12 +17,12 @@
 
     <repositories>
         <repository>
-            <id>github</id>
+            <id>gh-melon-logger</id>
             <name>GitHub LanguaLab Apache Maven Packages</name>
             <url>https://maven.pkg.github.com/LanguaLab/MelonLogger</url>
         </repository>
         <repository>
-            <id>github</id>
+            <id>gh-melon-otp</id>
             <name>GitHub LanguaLab Apache Maven Packages</name>
             <url>https://maven.pkg.github.com/LanguaLab/MelonOTP</url>
         </repository>

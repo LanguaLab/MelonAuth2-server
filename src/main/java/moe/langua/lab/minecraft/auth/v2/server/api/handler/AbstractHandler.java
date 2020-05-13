@@ -34,7 +34,7 @@ public abstract class AbstractHandler implements HttpHandler {
             InetAddress requestAddress;
             if (!httpExchange.getRequestHeaders().containsKey("X-Real-IP")) {
                 Utils.server.returnNoContent(httpExchange, 403);
-                Utils.logger.log(LogRecord.Level.WARN, httpExchange.getRemoteAddress().toString() + " tried to GET " + httpExchange.getRequestURI().getPath() + " with a bad request (No X-Real-IP Header).");
+                Utils.logger.log(LogRecord.Level.WARN, httpExchange.getRemoteAddress().toString() + " tried to "+httpExchange.getRequestMethod()+" " + httpExchange.getRequestURI().getPath() + " with a bad request (No X-Real-IP Header).");
                 return;
             }
             try {
@@ -45,12 +45,13 @@ public abstract class AbstractHandler implements HttpHandler {
                 Utils.server.returnNoContent(httpExchange, 403);
                 return;
             }
+            if (!getLimiter().getUsability(requestAddress)) {
+                Utils.server.errorReturn(httpExchange, 429, Utils.server.TOO_MANY_REQUEST_ERROR.setExtra("" + (getLimiter().getNextReset()-System.currentTimeMillis())));
+                getLimiter().add(requestAddress,1);
+                return;
+            }
             process:
             {
-                if (!getLimiter().getUsability(requestAddress)) {
-                    Utils.server.errorReturn(httpExchange, 429, Utils.server.TOO_MANY_REQUEST_ERROR.setExtra("" + (getLimiter().getNextReset()-System.currentTimeMillis())));
-                    break process;
-                }
                 if (!httpExchange.getRequestMethod().equalsIgnoreCase("GET")) {
                     Utils.server.returnNoContent(httpExchange, 405);
                     break process;

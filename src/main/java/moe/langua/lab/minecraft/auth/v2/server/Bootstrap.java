@@ -26,7 +26,7 @@ public class Bootstrap {
         Gson prettyGson = new GsonBuilder().setPrettyPrinting().create();
         File dataRoot = new File("");
         File configFile = new File(dataRoot.getAbsolutePath() + "/config.json");
-        Config config = null;
+        Config config;
         try {
             if (!configFile.exists()) {
                 configFile.createNewFile();
