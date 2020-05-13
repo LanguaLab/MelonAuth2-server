@@ -15,6 +15,19 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>github</id>
+            <name>GitHub LanguaLab Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/LanguaLab/MelonLogger</url>
+        </repository>
+        <repository>
+            <id>github</id>
+            <name>GitHub LanguaLab Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/LanguaLab/MelonOTP</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>com.google.code.gson</groupId>
@@ -26,6 +39,12 @@
             <groupId>moe.langua.lab.utils.logger</groupId>
             <artifactId>MelonLogger</artifactId>
             <version>3.0.3</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>moe.langua.lab.security.otp</groupId>
+            <artifactId>MelonOTP</artifactId>
+            <version>1.0.1</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

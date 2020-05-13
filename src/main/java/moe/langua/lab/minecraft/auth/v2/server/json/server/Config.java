@@ -52,7 +52,7 @@ public class Config {
     public static Config getDefault() {
         Utils.logger.log(LogRecord.Level.INFO, "First startup detected. Generating default config file...");
         Config config = new Config();
-        config.secretKey = UUID.randomUUID().toString();
+        config.secretKey = Utils.getRandomString(64);
         config.aPIUrl = "http://127.0.0.1:11014";
         config.CORSList = new ArrayList<>();
         config.skinServerSettings = SkinServerSettings.getDefault();
@@ -69,7 +69,7 @@ public class Config {
     }
 
     public void check() {
-        if (secretKey == null) secretKey = UUID.randomUUID().toString();
+        if (secretKey == null) secretKey = Utils.getRandomString(64);
         if (aPIUrl == null) aPIUrl = "http://127.0.0.1:11014";
         aPIUrl = Utils.removeSlashAtTheEnd(aPIUrl);
         if (CORSList == null) CORSList = new ArrayList<>();

@@ -23,7 +23,7 @@ public abstract class AbstractHandler implements HttpHandler {
         return limiter;
     }
 
-    public void process(HttpExchange httpExchange) {
+    public void process(HttpExchange httpExchange, InetAddress requestAddress) {
 
     }
 
@@ -31,25 +31,39 @@ public abstract class AbstractHandler implements HttpHandler {
     public void handle(HttpExchange httpExchange) {
         new Thread(() -> {
             long startTime = System.nanoTime();
-            if(!httpExchange.getRequestHeaders().containsKey("X-Real-IP")){
-                Utils.server.errorReturn(httpExchange,400, Utils.server.BAD_REQUEST);
-                Utils.logger.log(LogRecord.Level.WARN,httpExchange.getRemoteAddress().toString()+" tried to GET "+httpExchange.getRequestURI().getPath()+" with a bad request (No X-Real-IP Header).");
+            InetAddress requestAddress;
+            if (!httpExchange.getRequestHeaders().containsKey("X-Real-IP")) {
+                Utils.server.returnNoContent(httpExchange, 403);
+                Utils.logger.log(LogRecord.Level.WARN, httpExchange.getRemoteAddress().toString() + " tried to GET " + httpExchange.getRequestURI().getPath() + " with a bad request (No X-Real-IP Header).");
                 return;
             }
-            InetAddress requestAddress;
             try {
                 requestAddress = InetAddress.getByName(httpExchange.getRequestHeaders().getFirst("X-Real-IP"));
             } catch (UnknownHostException e) {
                 Utils.logger.log(LogRecord.Level.ERROR, e.toString());
                 Utils.logger.log(LogRecord.Level.ERROR, "It may caused by inappropriate reverse proxy configurations, please see 'url of reverse proxy configuration manual here' and reconfiguration your reverse proxy server.");
+                Utils.server.returnNoContent(httpExchange, 403);
                 return;
             }
-            if (!getLimiter().getUsabilityAndAdd1(requestAddress)) {
-                return;
+            process:
+            {
+                if (!getLimiter().getUsability(requestAddress)) {
+                    Utils.server.errorReturn(httpExchange, 429, Utils.server.TOO_MANY_REQUEST_ERROR.setExtra("" + (getLimiter().getNextReset()-System.currentTimeMillis())));
+                    break process;
+                }
+                if (!httpExchange.getRequestMethod().equalsIgnoreCase("GET")) {
+                    Utils.server.returnNoContent(httpExchange, 405);
+                    break process;
+                }
+                process(httpExchange, requestAddress);
+                if (httpExchange.getResponseCode() == -1)
+                    Utils.server.errorReturn(httpExchange, 404, Utils.server.NOT_FOUND_ERROR);
             }
-            process(httpExchange);
-            if(httpExchange.getResponseCode()==-1) Utils.server.errorReturn(httpExchange,404, Utils.server.NOT_FOUND_ERROR);
-            Utils.logger.log(LogRecord.Level.FINE,requestAddress.toString()+" GET "+httpExchange.getRequestURI().getPath()+" "+httpExchange.getResponseCode()+" "+((System.nanoTime()-startTime)/1000000D)+"ms");
+            float workTime = (System.nanoTime() - startTime) / 1000000F;
+            Utils.logger.log(((
+                            httpExchange.getResponseCode() / 100 == 2) || httpExchange.getResponseCode() == 429) && workTime < 500
+                            ? LogRecord.Level.FINE : LogRecord.Level.WARN/* FINE if response code is (2xx OR 429) AND workTime is less than 500ms, WARN if others.*/,
+                    requestAddress.toString() + " " + httpExchange.getRequestMethod() + " " + httpExchange.getRequestURI().getPath() + " " + httpExchange.getResponseCode() + " " + workTime + "ms");
         }, workerName).start();
     }
 

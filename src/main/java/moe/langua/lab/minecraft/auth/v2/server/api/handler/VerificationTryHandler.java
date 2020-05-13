@@ -9,6 +9,7 @@ import moe.langua.lab.utils.logger.utils.LogRecord;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.UUID;
 
 import static moe.langua.lab.minecraft.auth.v2.server.util.Utils.server.*;
@@ -22,7 +23,8 @@ public class VerificationTryHandler extends AbstractHandler {
     }
 
     @Override
-    public void process(HttpExchange httpExchange) {
+    public void process(HttpExchange httpExchange, InetAddress requestAddress) {
+        getLimiter().add(requestAddress,1);
         int verificationCode;
         try {
             verificationCode = Integer.parseInt(Utils.getLastChild(httpExchange.getRequestURI()));

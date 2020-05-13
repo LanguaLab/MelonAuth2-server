@@ -6,10 +6,12 @@ import moe.langua.lab.minecraft.auth.v2.server.json.mojang.Profile;
 import moe.langua.lab.minecraft.auth.v2.server.json.server.Config;
 import moe.langua.lab.minecraft.auth.v2.server.json.server.VerificationNotice;
 import moe.langua.lab.minecraft.auth.v2.server.util.*;
+import moe.langua.lab.security.otp.MelonTOTP;
 import moe.langua.lab.utils.logger.utils.LogRecord;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.URL;
 import java.util.UUID;
 
@@ -17,16 +19,38 @@ public class GetUUIDStatusHandler extends AbstractHandler {
     private final DataSearcher dataSearcher;
     private final VerificationCodeManager verificationCodeManager;
     private final SkinServer skinServer;
+    private final MelonTOTP totpServer;
 
     public GetUUIDStatusHandler(int limit, long periodInMilliseconds, HttpServer httpServer, String handlePath, DataSearcher dataSearcher, VerificationCodeManager verificationCodeManager, SkinServer skinServer) {
         super(limit, periodInMilliseconds, httpServer, handlePath);
         this.dataSearcher = dataSearcher;
         this.verificationCodeManager = verificationCodeManager;
         this.skinServer = skinServer;
+        this.totpServer = new MelonTOTP(Config.instance.secretKey.getBytes(),0x100000000L,30000);
     }
 
     @Override
-    public void process(HttpExchange httpExchange) {
+    public void process(HttpExchange httpExchange, InetAddress requestAddress) {
+        if(!httpExchange.getRequestHeaders().containsKey("Authorization")){
+            httpExchange.getResponseHeaders().set("WWW-Authenticate","MelonTOTP Pass required");
+            Utils.server.returnNoContent(httpExchange,401);
+            getLimiter().add(requestAddress,1);
+            return;
+        }else{
+            long pass;
+            try {
+                pass = Long.parseLong(httpExchange.getRequestHeaders().getFirst("Authorization"), 16);
+            }catch (NumberFormatException e){
+                Utils.server.returnNoContent(httpExchange,403);
+                getLimiter().add(requestAddress,1);
+                return;
+            }
+            if(!totpServer.verify(pass)){
+                Utils.server.returnNoContent(httpExchange,403);
+                getLimiter().add(requestAddress,1);
+                return;
+            }
+        }
         UUID uniqueID;
         try {
             uniqueID = UUID.fromString(Utils.getLastChild(httpExchange.getRequestURI()));

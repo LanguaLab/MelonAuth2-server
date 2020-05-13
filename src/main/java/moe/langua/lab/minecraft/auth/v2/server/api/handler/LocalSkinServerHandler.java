@@ -9,6 +9,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.InetAddress;
 
 public class LocalSkinServerHandler extends AbstractHandler {
     private final File dataRoot;
@@ -19,7 +20,8 @@ public class LocalSkinServerHandler extends AbstractHandler {
     }
 
     @Override
-    public void process(HttpExchange httpExchange) {
+    public void process(HttpExchange httpExchange, InetAddress requestAddress) {
+        getLimiter().add(requestAddress,1);
         File fileToGet = new File(dataRoot, Utils.getLastChild(httpExchange.getRequestURI()));
         if (!fileToGet.exists()) return;
 

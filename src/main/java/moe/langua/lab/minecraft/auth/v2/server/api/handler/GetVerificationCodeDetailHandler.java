@@ -7,6 +7,8 @@ import moe.langua.lab.minecraft.auth.v2.server.util.Utils;
 import moe.langua.lab.minecraft.auth.v2.server.util.Verification;
 import moe.langua.lab.minecraft.auth.v2.server.util.VerificationCodeManager;
 
+import java.net.InetAddress;
+
 public class GetVerificationCodeDetailHandler extends AbstractHandler {
     private final VerificationCodeManager verificationCodeManager;
 
@@ -16,7 +18,8 @@ public class GetVerificationCodeDetailHandler extends AbstractHandler {
     }
 
     @Override
-    public void process(HttpExchange httpExchange) {
+    public void process(HttpExchange httpExchange, InetAddress requestAddress) {
+        getLimiter().add(requestAddress,1);
         int verificationCode;
         try {
             verificationCode = Integer.parseInt(Utils.getLastChild(httpExchange.getRequestURI()));

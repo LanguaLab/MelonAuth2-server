@@ -15,6 +15,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URI;
 import java.net.URL;
+import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.Random;
 import java.util.UUID;
@@ -156,13 +157,23 @@ public class Utils {
         return target;
     }
 
+    private static char[] charSets = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".toCharArray();
+    public static String getRandomString(int length){
+        SecureRandom random = new SecureRandom();
+        StringBuilder stringBuilder = new StringBuilder();
+        for(int times = 0;times<length;times++){
+            stringBuilder.append(charSets[random.nextInt(62)]);
+        }
+        return stringBuilder.toString();
+    }
+
     public static class server {
         public static final Error NOT_FOUND_ERROR = new Error("Not Found", "The server has not found anything matching the request URI", null);
         public static final Error TOO_MANY_REQUEST_ERROR = new Error("TooManyRequestsException", "The client has sent too many requests within a certain amount of time", null);
         //public static final Error VERIFICATION_EXPIRED_ERROR = new Error("Verification Expired", "Your Verification has been expired, please reconnect to server and get a new verification code", null);
         public static final Error SERVER_NETWORK_ERROR = new Error("Server Network Error", "Server network communication error, please try again later", null);
         public static final Error INTERNAL_ERROR = new Error("Internal Server Error", "Internal error occurred", null);
-        public static final Error BAD_REQUEST = new Error("Bad Request", null, null);
+        //public static final Error BAD_REQUEST = new Error("Bad Request", null, null);
 
         public static void errorReturn(HttpExchange httpExchange, int responseCode, Error error) {
             writeJSONAndSend(httpExchange, responseCode, gson.toJson(error));

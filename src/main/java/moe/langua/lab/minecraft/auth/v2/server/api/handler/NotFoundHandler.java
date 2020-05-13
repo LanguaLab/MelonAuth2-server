@@ -6,6 +6,8 @@ import moe.langua.lab.minecraft.auth.v2.server.json.server.Config;
 import moe.langua.lab.minecraft.auth.v2.server.json.server.Overview;
 import moe.langua.lab.minecraft.auth.v2.server.util.Utils;
 
+import java.net.InetAddress;
+
 
 public class NotFoundHandler extends AbstractHandler {
     private final String status;
@@ -19,7 +21,7 @@ public class NotFoundHandler extends AbstractHandler {
     }
 
     @Override
-    public void process(HttpExchange httpExchange) {
+    public void process(HttpExchange httpExchange, InetAddress requestAddress) {
         if (httpExchange.getRequestURI().getPath().equalsIgnoreCase("/")) {
             Utils.server.writeJSONAndSend(httpExchange, 200, status);
         }

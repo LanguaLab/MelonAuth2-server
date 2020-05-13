@@ -62,13 +62,8 @@ public class Bootstrap {
         }
 
         Utils.logger.log(LogRecord.Level.INFO, "Loading server SecretKey...");
-        try {
-            UUID key = UUID.fromString(config.secretKey);
-        } catch (IllegalArgumentException e) {
-            Utils.logger.log(LogRecord.Level.FATAL, e.toString());
-            Utils.logger.log(LogRecord.Level.FATAL, "Secret key must be a full uuid");
-            System.exit(-1);
-            return;
+        if(config.secretKey.length()<64){
+            Utils.logger.log(LogRecord.Level.WARN, "Short secret key detected. Remove the secret key object completely from 'config.json' and restart the server to generate a new key to avoid this warning.");
         }
 
         Utils.logger.log(LogRecord.Level.INFO, "Initializing SkinServer...");
