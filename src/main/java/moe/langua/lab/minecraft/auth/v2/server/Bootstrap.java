@@ -16,7 +16,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.UUID;
 
 public class Bootstrap {
 
@@ -28,8 +27,7 @@ public class Bootstrap {
         File configFile = new File(dataRoot.getAbsolutePath() + "/config.json");
         Config config;
         try {
-            if (!configFile.exists()) {
-                configFile.createNewFile();
+            if (configFile.createNewFile()) {
                 config = Config.getDefault();
             } else {
                 config = Utils.gson.fromJson(new FileReader(configFile), Config.class);
@@ -49,11 +47,10 @@ public class Bootstrap {
         Utils.logger.addHandler(new ConsoleLogHandler(LogRecord.Level.getFromName(config.minimumLogRecordLevel)));
 
         File logFolder = new File(dataRoot.getAbsolutePath() + "/logs");
-        if (!logFolder.exists()) logFolder.mkdir();
-        if (logFolder.isFile()) {
-            Utils.logger.log(LogRecord.Level.ERROR, "LogFolder \"" + logFolder.getAbsolutePath() + "\" should be a folder, but found a file.");
-            System.exit(-1);
-            return;
+        if (!logFolder.mkdir()&&logFolder.isFile()) {
+                Utils.logger.log(LogRecord.Level.ERROR, "LogFolder \"" + logFolder.getAbsolutePath() + "\" should be a folder, but found a file.");
+                System.exit(-1);
+                return;
         }
         try {
             Utils.logger.addHandler(new DailyRollingFileLogHandler(LogRecord.Level.getFromName(config.minimumLogRecordLevel), logFolder));

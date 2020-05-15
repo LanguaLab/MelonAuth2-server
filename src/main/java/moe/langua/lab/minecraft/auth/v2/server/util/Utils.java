@@ -186,7 +186,6 @@ public class Utils {
 
         public static void writeAndSend(HttpExchange httpExchange, int responseCode, String contentType, byte[] content, long contentLength) {
             try {
-                setCORSHeader(httpExchange);
                 httpExchange.getResponseHeaders().set("Content-Type", contentType);
                 httpExchange.sendResponseHeaders(responseCode, contentLength);
                 httpExchange.getResponseBody().write(content);
@@ -199,18 +198,10 @@ public class Utils {
 
         public static void returnNoContent(HttpExchange httpExchange, int rCode) {
             try {
-                setCORSHeader(httpExchange);
                 httpExchange.sendResponseHeaders(rCode, -1);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
-
-        private static void setCORSHeader(HttpExchange httpExchange) {
-            if (!httpExchange.getRequestHeaders().containsKey("Origin")) return;
-            String origin = removeSlashAtTheEnd(httpExchange.getRequestHeaders().getFirst("Origin"));
-            if (Config.instance.CORSList.contains(origin))
-                httpExchange.getResponseHeaders().set("Access-Control-Allow-Origin", origin);
         }
     }
 

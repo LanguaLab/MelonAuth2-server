@@ -35,6 +35,6 @@ public class LocalSkinServerHandler extends AbstractHandler {
             Utils.logger.log(LogRecord.Level.WARN, e.toString());
             return;
         }
-        Utils.server.writeAndSend(httpExchange, 200, "image/png", bytes, fileToGet.length());
+        Utils.server.writeAndSend(httpExchange, 200, "image/png", bytes, bytes.length);
     }
 }

@@ -4,6 +4,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import moe.langua.lab.minecraft.auth.v2.server.api.Limiter;
+import moe.langua.lab.minecraft.auth.v2.server.json.server.Config;
 import moe.langua.lab.minecraft.auth.v2.server.util.Utils;
 import moe.langua.lab.utils.logger.utils.LogRecord;
 
@@ -34,7 +35,7 @@ public abstract class AbstractHandler implements HttpHandler {
             InetAddress requestAddress;
             if (!httpExchange.getRequestHeaders().containsKey("X-Real-IP")) {
                 Utils.server.returnNoContent(httpExchange, 403);
-                Utils.logger.log(LogRecord.Level.WARN, httpExchange.getRemoteAddress().toString() + " tried to "+httpExchange.getRequestMethod()+" " + httpExchange.getRequestURI().getPath() + " with a bad request (No X-Real-IP Header).");
+                Utils.logger.log(LogRecord.Level.WARN, httpExchange.getRemoteAddress().toString() + " tried to " + httpExchange.getRequestMethod() + " " + httpExchange.getRequestURI().getPath() + " with a bad request (No X-Real-IP Header).");
                 return;
             }
             try {
@@ -46,9 +47,14 @@ public abstract class AbstractHandler implements HttpHandler {
                 return;
             }
             if (!getLimiter().getUsability(requestAddress)) {
-                Utils.server.errorReturn(httpExchange, 429, Utils.server.TOO_MANY_REQUEST_ERROR.setExtra("" + (getLimiter().getNextReset()-System.currentTimeMillis())));
-                getLimiter().add(requestAddress,1);
+                Utils.server.errorReturn(httpExchange, 429, Utils.server.TOO_MANY_REQUEST_ERROR.setExtra("" + (getLimiter().getNextReset() - System.currentTimeMillis())));
+                getLimiter().add(requestAddress, 1);
                 return;
+            }
+            if (httpExchange.getRequestHeaders().containsKey("Origin")) {
+                String origin = Utils.removeSlashAtTheEnd(httpExchange.getRequestHeaders().getFirst("Origin"));
+                if (Config.instance.CORSList.contains(origin))
+                    httpExchange.getResponseHeaders().set("Access-Control-Allow-Origin", origin);
             }
             process:
             {

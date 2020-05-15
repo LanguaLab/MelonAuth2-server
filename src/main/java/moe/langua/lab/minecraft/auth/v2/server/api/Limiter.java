@@ -43,12 +43,6 @@ public class Limiter {
         usageRecord.put(address, usageRecord.get(address) + delta);
     }
 
-    public boolean getUsabilityAndAdd1(InetAddress address) {
-        add(address, 1);
-        if (LIMIT < 0) return true;
-        return getUsability(address);
-    }
-
     public long getNextReset() {
         return nextReset;
     }
