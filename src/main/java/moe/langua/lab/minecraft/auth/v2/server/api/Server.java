@@ -3,7 +3,7 @@ package moe.langua.lab.minecraft.auth.v2.server.api;
 import com.sun.net.httpserver.HttpServer;
 import moe.langua.lab.minecraft.auth.v2.server.api.handler.*;
 import moe.langua.lab.minecraft.auth.v2.server.json.server.Config;
-import moe.langua.lab.minecraft.auth.v2.server.util.DataSearcher;
+import moe.langua.lab.minecraft.auth.v2.server.sql.DataSearcher;
 import moe.langua.lab.minecraft.auth.v2.server.util.SkinServer;
 import moe.langua.lab.minecraft.auth.v2.server.util.VerificationCodeManager;
 

@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import moe.langua.lab.minecraft.auth.v2.server.api.Server;
 import moe.langua.lab.minecraft.auth.v2.server.json.server.Config;
-import moe.langua.lab.minecraft.auth.v2.server.util.DataSearcher;
+import moe.langua.lab.minecraft.auth.v2.server.sql.DataSearcher;
 import moe.langua.lab.minecraft.auth.v2.server.util.Database;
 import moe.langua.lab.minecraft.auth.v2.server.util.SkinServer;
 import moe.langua.lab.minecraft.auth.v2.server.util.Utils;
@@ -29,8 +29,10 @@ public class Bootstrap {
         try {
             if (configFile.createNewFile()) {
                 config = Config.getDefault();
-            } else {
+            } else if(configFile.isFile()){
                 config = Utils.gson.fromJson(new FileReader(configFile), Config.class);
+            }else{
+                throw new IllegalArgumentException(configFile.getAbsolutePath() + " should be a file, but found a directory.");
             }
             config.check();
             FileWriter writer = new FileWriter(configFile, false);

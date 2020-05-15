@@ -5,6 +5,7 @@ import com.sun.net.httpserver.HttpServer;
 import moe.langua.lab.minecraft.auth.v2.server.json.mojang.Profile;
 import moe.langua.lab.minecraft.auth.v2.server.json.server.Config;
 import moe.langua.lab.minecraft.auth.v2.server.json.server.VerificationNotice;
+import moe.langua.lab.minecraft.auth.v2.server.sql.DataSearcher;
 import moe.langua.lab.minecraft.auth.v2.server.util.*;
 import moe.langua.lab.security.otp.MelonTOTP;
 import moe.langua.lab.utils.logger.utils.LogRecord;
