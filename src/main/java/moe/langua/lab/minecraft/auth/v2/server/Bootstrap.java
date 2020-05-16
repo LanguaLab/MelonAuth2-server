@@ -4,8 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import moe.langua.lab.minecraft.auth.v2.server.api.Server;
 import moe.langua.lab.minecraft.auth.v2.server.json.server.Config;
-import moe.langua.lab.minecraft.auth.v2.server.sql.DataSearcher;
-import moe.langua.lab.minecraft.auth.v2.server.util.Database;
+import moe.langua.lab.minecraft.auth.v2.server.sql.SQLiteDataSearcher;
 import moe.langua.lab.minecraft.auth.v2.server.util.SkinServer;
 import moe.langua.lab.minecraft.auth.v2.server.util.Utils;
 import moe.langua.lab.utils.logger.handler.ConsoleLogHandler;
@@ -16,10 +15,11 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.SQLException;
 
 public class Bootstrap {
 
-    public static void main(String... args) {
+    public static void main(String... args) throws SQLException, ClassNotFoundException, IllegalAccessException, InstantiationException {
         long start = System.currentTimeMillis();
         System.out.println("Loading runtime...");
         Gson prettyGson = new GsonBuilder().setPrettyPrinting().create();
@@ -29,9 +29,9 @@ public class Bootstrap {
         try {
             if (configFile.createNewFile()) {
                 config = Config.getDefault();
-            } else if(configFile.isFile()){
+            } else if (configFile.isFile()) {
                 config = Utils.gson.fromJson(new FileReader(configFile), Config.class);
-            }else{
+            } else {
                 throw new IllegalArgumentException(configFile.getAbsolutePath() + " should be a file, but found a directory.");
             }
             config.check();
@@ -49,10 +49,8 @@ public class Bootstrap {
         Utils.logger.addHandler(new ConsoleLogHandler(LogRecord.Level.getFromName(config.minimumLogRecordLevel)));
 
         File logFolder = new File(dataRoot.getAbsolutePath() + "/logs");
-        if (!logFolder.mkdir()&&logFolder.isFile()) {
-                Utils.logger.log(LogRecord.Level.ERROR, "LogFolder \"" + logFolder.getAbsolutePath() + "\" should be a folder, but found a file.");
-                System.exit(-1);
-                return;
+        if (!logFolder.mkdir() && logFolder.isFile()) {
+            throw new IllegalArgumentException("LogFolder " + logFolder.getAbsolutePath() + " should be a folder, but found a file.");
         }
         try {
             Utils.logger.addHandler(new DailyRollingFileLogHandler(LogRecord.Level.getFromName(config.minimumLogRecordLevel), logFolder));
@@ -61,7 +59,7 @@ public class Bootstrap {
         }
 
         Utils.logger.log(LogRecord.Level.INFO, "Loading server SecretKey...");
-        if(config.secretKey.length()<64){
+        if (config.secretKey.length() < 64) {
             Utils.logger.log(LogRecord.Level.WARN, "Short secret key detected. Remove the secret key object completely from 'config.json' and restart the server to generate a new key to avoid this warning.");
         }
 
@@ -71,7 +69,7 @@ public class Bootstrap {
         Runtime.getRuntime().addShutdownHook(new Thread(skinServer::purgeAll));
 
         Utils.logger.log(LogRecord.Level.INFO, "API Starting...");
-        new Server(11014, new DataSearcher(new Database()), skinServer);
+        new Server(11014, new SQLiteDataSearcher(dataRoot), skinServer);
         Utils.logger.log(LogRecord.Level.INFO, "Done(" + (System.currentTimeMillis() - start) / 1000.0 + "s)! All modules have started.");
     }
 }

@@ -15,13 +15,18 @@ public class SQLiteDataSearcher implements DataSearcher {
 
     public SQLiteDataSearcher(File dataRoot) throws IllegalArgumentException, SQLException {
         Utils.logger.log(LogRecord.Level.INFO, "Initializing SQLite for verification data storage...");
-        File dataDirectory = new File(dataRoot, "data");
+        File dataDirectory = new File(dataRoot.getAbsolutePath()+ "/data");
         if (!dataDirectory.mkdir() && !dataDirectory.isDirectory()) {
             throw new IllegalArgumentException(dataDirectory.getAbsolutePath() + " should be a directory, but found a file.");
         }
         File dataBaseFile = new File(dataDirectory, "verification.db");
         String url = "jdbc:sqlite:" + dataBaseFile.getAbsolutePath();
         jDBCConnection = DriverManager.getConnection(url);
+
+        initialize_database:{
+
+        }
+
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
                 jDBCConnection.close();

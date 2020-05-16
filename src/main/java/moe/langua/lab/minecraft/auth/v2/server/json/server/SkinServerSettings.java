@@ -18,12 +18,10 @@ public class SkinServerSettings {
 
 
     public static SkinServerSettings getDefault() {
-        SkinServerSettings skinServerSettings = new SkinServerSettings();
-        skinServerSettings.setToDefault();
-        return skinServerSettings;
+        return new SkinServerSettings().check();
     }
 
-    public void check() {
+    public SkinServerSettings check() {
         if (dataRoot == null) dataRoot = "./skins";
         dataRoot = Utils.removeSlashAtTheEnd(dataRoot);
         if (usageLimit == null || usageLimit.size() < 2) {
@@ -31,14 +29,6 @@ public class SkinServerSettings {
             usageLimit.add(20);
             usageLimit.add(60000);
         }
+        return this;
     }
-
-    public void setToDefault() {
-        dataRoot = "./skins";
-        usageLimit = new ArrayList<>();
-        usageLimit.add(20);
-        usageLimit.add(60000);
-    }
-
-
 }

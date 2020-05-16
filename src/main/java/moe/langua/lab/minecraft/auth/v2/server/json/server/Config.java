@@ -7,7 +7,6 @@ import moe.langua.lab.utils.logger.utils.LogRecord;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class Config {
     public static Config instance;
@@ -51,24 +50,10 @@ public class Config {
 
     public static Config getDefault() {
         Utils.logger.log(LogRecord.Level.INFO, "First startup detected. Generating default config file...");
-        Config config = new Config();
-        config.secretKey = Utils.getRandomString(64);
-        config.aPIUrl = "http://127.0.0.1:11014";
-        config.CORSList = new ArrayList<>();
-        config.skinServerSettings = SkinServerSettings.getDefault();
-        config.verificationExpireTime = 1800000L;
-        config.verificationRegenTime = 900000L;
-        config.verificationPublicAPIUsageLimit = VerificationPublicAPIUsageLimit.getDefault();
-        config.minecraftServerFailedAttempts = new ArrayList<>();
-        config.minecraftServerFailedAttempts.add(1);
-        config.minecraftServerFailedAttempts.add(60000);
-        config.minimumLogRecordLevel = "fine";
-        config.applicationOwner = "LanguaLab";
-        config.applicationDescription = "MelonAuth 2 public api";
-        return config;
+        return new Config().check();
     }
 
-    public void check() {
+    public Config check() {
         if (secretKey == null) secretKey = Utils.getRandomString(64);
         if (aPIUrl == null) aPIUrl = "http://127.0.0.1:11014";
         aPIUrl = Utils.removeSlashAtTheEnd(aPIUrl);
@@ -76,6 +61,7 @@ public class Config {
         for (int index = 0; index < CORSList.size(); index++) {
             CORSList.set(index, Utils.removeSlashAtTheEnd(CORSList.get(index)));
         }
+        if (databaseSettings == null) databaseSettings = DatabaseSettings.getDefault();
         if (skinServerSettings == null) skinServerSettings = SkinServerSettings.getDefault();
         if (verificationPublicAPIUsageLimit == null)
             verificationPublicAPIUsageLimit = VerificationPublicAPIUsageLimit.getDefault();
@@ -91,8 +77,12 @@ public class Config {
         if (LogRecord.Level.getFromName(minimumLogRecordLevel) == null) minimumLogRecordLevel = "fine";
         if (applicationOwner == null) applicationOwner = "LanguaLab";
         if (applicationDescription == null) applicationDescription = "MelonAuth 2 public api";
+
+        databaseSettings.check();
         skinServerSettings.check();
         verificationPublicAPIUsageLimit.check();
+
+        return this;
     }
 
 }
