@@ -1,11 +1,12 @@
 package moe.langua.lab.minecraft.auth.v2.server.sql;
 
 import java.net.InetAddress;
+import java.sql.SQLException;
 import java.util.UUID;
 
 public interface DataSearcher {
 
-    int getPlayerStatus(UUID uniqueID);
+    int getPlayerStatus(UUID uniqueID) throws SQLException;
 
-    boolean setPlayerStatus(UUID uniqueID, int status, InetAddress commitAddress);
+    void setPlayerStatus(UUID uniqueID, int status, InetAddress commitAddress) throws SQLException;
 }

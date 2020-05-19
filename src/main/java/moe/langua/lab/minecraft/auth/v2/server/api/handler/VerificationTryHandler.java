@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.util.UUID;
 
-import static moe.langua.lab.minecraft.auth.v2.server.util.Utils.server.*;
+import static moe.langua.lab.minecraft.auth.v2.server.util.Utils.server.SERVER_NETWORK_ERROR;
 
 public class VerificationTryHandler extends AbstractHandler {
     private final VerificationCodeManager verificationCodeManager;

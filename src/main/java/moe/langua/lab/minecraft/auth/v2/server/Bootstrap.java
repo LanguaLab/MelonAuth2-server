@@ -69,7 +69,7 @@ public class Bootstrap {
         Runtime.getRuntime().addShutdownHook(new Thread(skinServer::purgeAll));
 
         Utils.logger.log(LogRecord.Level.INFO, "API Starting...");
-        new Server(11014, new SQLiteDataSearcher(dataRoot), skinServer);
+        new Server(11014, new SQLiteDataSearcher(dataRoot, Config.instance.databaseSettings.tablePrefix), skinServer);
         Utils.logger.log(LogRecord.Level.INFO, "Done(" + (System.currentTimeMillis() - start) / 1000.0 + "s)! All modules have started.");
     }
 }

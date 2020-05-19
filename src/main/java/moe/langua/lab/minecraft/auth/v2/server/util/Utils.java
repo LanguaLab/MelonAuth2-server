@@ -5,7 +5,6 @@ import com.sun.net.httpserver.HttpExchange;
 import moe.langua.lab.minecraft.auth.v2.server.json.mojang.PlayerProfile;
 import moe.langua.lab.minecraft.auth.v2.server.json.mojang.Profile;
 import moe.langua.lab.minecraft.auth.v2.server.json.mojang.Property;
-import moe.langua.lab.minecraft.auth.v2.server.json.server.Config;
 import moe.langua.lab.minecraft.auth.v2.server.json.server.Error;
 import moe.langua.lab.utils.logger.MelonLogger;
 
