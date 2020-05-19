@@ -28,19 +28,19 @@ public class DatabaseSettings {
     @Expose
     public String mysqlPassword;
 
-    public DatabaseSettings check(){
-        if(tablePrefix==null) tablePrefix = "AuthV2_";
-        if(useMySQL==null) useMySQL = false;
-        if(mysqlHost==null) mysqlHost = "127.0.0.1";
-        if(mysqlPort==null) mysqlPort = 3306;
-        if(mysqlDatabase==null) mysqlDatabase = "databaseName";
-        if(mysqlUsername==null) mysqlUsername = "authv2";
-        if(mysqlPassword==null) mysqlPassword = Utils.getRandomString(10);
-        return this;
+    public static DatabaseSettings getDefault() {
+        return new DatabaseSettings().check();
     }
 
-    public static DatabaseSettings getDefault(){
-        return new DatabaseSettings().check();
+    public DatabaseSettings check() {
+        if (tablePrefix == null) tablePrefix = "AuthV2_";
+        if (useMySQL == null) useMySQL = false;
+        if (mysqlHost == null) mysqlHost = "127.0.0.1";
+        if (mysqlPort == null) mysqlPort = 3306;
+        if (mysqlDatabase == null) mysqlDatabase = "databaseName";
+        if (mysqlUsername == null) mysqlUsername = "authv2";
+        if (mysqlPassword == null) mysqlPassword = Utils.getRandomString(10);
+        return this;
     }
 
 }

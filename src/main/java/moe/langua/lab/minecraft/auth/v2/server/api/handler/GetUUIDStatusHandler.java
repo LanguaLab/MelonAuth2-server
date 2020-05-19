@@ -17,6 +17,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.UUID;
 
 public class GetUUIDStatusHandler extends AbstractHandler {
@@ -30,28 +31,28 @@ public class GetUUIDStatusHandler extends AbstractHandler {
         this.dataSearcher = dataSearcher;
         this.verificationCodeManager = verificationCodeManager;
         this.skinServer = skinServer;
-        this.totpServer = new MelonTOTP(Config.instance.secretKey.getBytes(),0x100000000L,30000);
+        this.totpServer = new MelonTOTP(Config.instance.secretKey.getBytes(), 0x100000000L, 30000);
     }
 
     @Override
     public void process(HttpExchange httpExchange, InetAddress requestAddress) {
-        if(!httpExchange.getRequestHeaders().containsKey("Authorization")){
-            httpExchange.getResponseHeaders().set("WWW-Authenticate","MelonTOTP Pass required");
-            Utils.server.returnNoContent(httpExchange,401);
-            getLimiter().add(requestAddress,1);
+        if (!httpExchange.getRequestHeaders().containsKey("Authorization")) {
+            httpExchange.getResponseHeaders().set("WWW-Authenticate", "MelonTOTP Pass required");
+            Utils.server.returnNoContent(httpExchange, 401);
+            getLimiter().add(requestAddress, 1);
             return;
-        }else{
-            long pass;
+        } else {
+            long passCode;
             try {
-                pass = Long.parseLong(httpExchange.getRequestHeaders().getFirst("Authorization"), 16);
-            }catch (NumberFormatException e){
-                Utils.server.returnNoContent(httpExchange,403);
-                getLimiter().add(requestAddress,1);
+                passCode = Long.parseLong(httpExchange.getRequestHeaders().getFirst("Authorization"), 16);
+            } catch (NumberFormatException e) {
+                Utils.server.returnNoContent(httpExchange, 403);
+                getLimiter().add(requestAddress, 1);
                 return;
             }
-            if(!totpServer.verify(pass)){
-                Utils.server.returnNoContent(httpExchange,403);
-                getLimiter().add(requestAddress,1);
+            if (!totpServer.verify(passCode)) {
+                Utils.server.returnNoContent(httpExchange, 403);
+                getLimiter().add(requestAddress, 1);
                 return;
             }
         }
@@ -62,7 +63,15 @@ public class GetUUIDStatusHandler extends AbstractHandler {
             Utils.server.errorReturn(httpExchange, 404, Utils.server.NOT_FOUND_ERROR);
             return;
         }
-        if (dataSearcher.getPlayerStatus(uniqueID) == 0) {// block
+        boolean passed;
+        try {
+            passed = dataSearcher.getPlayerStatus(uniqueID);
+        } catch (SQLException e) {
+            Utils.logger.log(LogRecord.Level.ERROR, e.toString());
+            Utils.server.errorReturn(httpExchange, 500, Utils.server.INTERNAL_ERROR);
+            return;
+        }
+        if (!passed) {// block
             if (!verificationCodeManager.hasVerification(uniqueID) || verificationCodeManager.getVerification(uniqueID).getExpireTime() - System.currentTimeMillis() < Config.instance.verificationRegenTime/*has no existing verification OR exist verification remains less than regen time*/) {
                 verificationCodeManager.removeVerification(uniqueID);
                 //create new verification

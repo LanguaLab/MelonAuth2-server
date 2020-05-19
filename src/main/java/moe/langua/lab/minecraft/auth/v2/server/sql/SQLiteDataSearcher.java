@@ -27,16 +27,17 @@ public class SQLiteDataSearcher implements DataSearcher {
                         " RecordID INTEGER PRIMARY KEY AUTOINCREMENT,\n" +
                         " UUIDMost INTEGER,\n" +
                         " UUIDLeast INTEGER,\n" +
-                        " Status INTEGER,\n" +
+                        " Status BOOLEAN,\n" +
                         " CommitIPAddress TEXT,\n" +
                         " CommitTime INTEGER\n" +
                         ");";
 
-        try (Statement statementInstance = jDBCConnection.createStatement()) {
+        {
+            Statement statementInstance = jDBCConnection.createStatement();
             statementInstance.execute(initializeTable);
-        } catch (SQLException e) {
-            e.printStackTrace();
+            statementInstance.close();
         }
+
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
@@ -50,9 +51,9 @@ public class SQLiteDataSearcher implements DataSearcher {
     }
 
     @Override
-    public int getPlayerStatus(UUID uniqueID) throws SQLException {
+    public boolean getPlayerStatus(UUID uniqueID) throws SQLException {
         String checkIfAPlayerExistInDatabase = "" +
-                "SELECT Count(Status) AS Count FROM " + TABLE_PREFIX + "_Verifications\n" +
+                "SELECT Count(RecordID) AS Count FROM " + TABLE_PREFIX + "Verifications\n" +
                 "WHERE UUIDMost=" + uniqueID.getMostSignificantBits() + " AND UUIDLeast=" + uniqueID.getLeastSignificantBits() + ";";
         String insertVerificationStatement = "INSERT INTO " + TABLE_PREFIX + "Verifications(UniqueIDMost,UniqueIDLeast,Status) VALUES(?,?,?)";
         String getVerificationStatusStatement = "SELECT Status FROM " + TABLE_PREFIX + "Verifications " +
@@ -60,29 +61,28 @@ public class SQLiteDataSearcher implements DataSearcher {
 
         try (Statement statementInstance = jDBCConnection.createStatement()) {
             ResultSet resultSet = statementInstance.executeQuery(checkIfAPlayerExistInDatabase);
-            resultSet.first();
             if (resultSet.getInt(0) == 0) {
                 //insert new record
                 PreparedStatement insertStatement = jDBCConnection.prepareStatement(insertVerificationStatement);
                 insertStatement.setLong(0, uniqueID.getMostSignificantBits());
                 insertStatement.setLong(1, uniqueID.getLeastSignificantBits());
-                insertStatement.setInt(2, 1);
+                insertStatement.setBoolean(2, false);
                 insertStatement.executeUpdate();
-                return 1;
+                return false;
             } else {
                 //lookup status and return
                 ResultSet statusResultSet = jDBCConnection.createStatement().executeQuery(getVerificationStatusStatement);
-                return statusResultSet.getInt(0);
+                return statusResultSet.getBoolean(0);
             }
         }
     }
 
     @Override
-    public void setPlayerStatus(UUID uniqueID, int status, InetAddress commitAddress) throws SQLException {
+    public void setPlayerStatus(UUID uniqueID, boolean status, InetAddress commitAddress) throws SQLException {
         String updateStatement = "UPDATE " + TABLE_PREFIX + "Verifications SET Status = ? ,CommitIPAddress = ? ,CommitTime = ? " +
                 "WHERE UniqueIDMost = " + uniqueID.getMostSignificantBits() + " AND UniqueIDLeast = " + uniqueID.getLeastSignificantBits() + ";";
         PreparedStatement preparedStatement = jDBCConnection.prepareStatement(updateStatement);
-        preparedStatement.setInt(0, status);
+        preparedStatement.setBoolean(0, status);
         preparedStatement.setString(1, commitAddress.toString());
         preparedStatement.setLong(2, System.currentTimeMillis());
         preparedStatement.executeUpdate();

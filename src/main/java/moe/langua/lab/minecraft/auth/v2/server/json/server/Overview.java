@@ -22,14 +22,14 @@ public class Overview {
     @Expose
     public String applicationOwner;
 
-    public static Overview getDefault(){
+    public static Overview getDefault() {
         Overview overview = new Overview();
         overview.status = "OK";
         InputStream in = Overview.class.getResourceAsStream("/VERSION");
         BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-        try{
+        try {
             overview.version = reader.readLine();
-        }catch (IOException e){
+        } catch (IOException e) {
             overview.version = "UNKNOWN";
         }
         return overview;

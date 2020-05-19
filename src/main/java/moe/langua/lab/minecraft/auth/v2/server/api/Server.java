@@ -27,7 +27,7 @@ public class Server {
         new GetUUIDStatusHandler(Config.instance.minecraftServerFailedAttempts.get(0), Config.instance.minecraftServerFailedAttempts.get(1), httpServer, "/get/uuid/", searcher, verificationCodeManager, skinServer);
         new GetVerificationCodeDetailHandler(Config.instance.verificationPublicAPIUsageLimit.getVerificationCodeDetail.get(0), Config.instance.verificationPublicAPIUsageLimit.getVerificationCodeDetail.get(1), httpServer, "/get/code/", verificationCodeManager);
         new LocalSkinServerHandler(Config.instance.skinServerSettings.usageLimit.get(0), Config.instance.skinServerSettings.usageLimit.get(1), httpServer, "/get/skin/", skinServer.getDataRoot());
-        new VerificationTryHandler(Config.instance.verificationPublicAPIUsageLimit.sendVerificationRequest.get(0), Config.instance.verificationPublicAPIUsageLimit.sendVerificationRequest.get(1), httpServer, "/try/", verificationCodeManager);
+        new VerificationTryHandler(Config.instance.verificationPublicAPIUsageLimit.sendVerificationRequest.get(0), Config.instance.verificationPublicAPIUsageLimit.sendVerificationRequest.get(1), httpServer, "/try/", searcher, verificationCodeManager);
         httpServer.start();
     }
 }

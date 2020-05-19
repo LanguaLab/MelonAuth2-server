@@ -21,7 +21,7 @@ public class LocalSkinServerHandler extends AbstractHandler {
 
     @Override
     public void process(HttpExchange httpExchange, InetAddress requestAddress) {
-        getLimiter().add(requestAddress,1);
+        getLimiter().add(requestAddress, 1);
         File fileToGet = new File(dataRoot, Utils.getLastChild(httpExchange.getRequestURI()));
         if (!fileToGet.exists()) return;
 

@@ -19,7 +19,7 @@ public class GetVerificationCodeDetailHandler extends AbstractHandler {
 
     @Override
     public void process(HttpExchange httpExchange, InetAddress requestAddress) {
-        getLimiter().add(requestAddress,1);
+        getLimiter().add(requestAddress, 1);
         int verificationCode;
         try {
             verificationCode = Integer.parseInt(Utils.getLastChild(httpExchange.getRequestURI()));

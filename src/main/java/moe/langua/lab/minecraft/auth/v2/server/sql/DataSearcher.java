@@ -6,7 +6,7 @@ import java.util.UUID;
 
 public interface DataSearcher {
 
-    int getPlayerStatus(UUID uniqueID) throws SQLException;
+    boolean getPlayerStatus(UUID uniqueID) throws SQLException;
 
-    void setPlayerStatus(UUID uniqueID, int status, InetAddress commitAddress) throws SQLException;
+    void setPlayerStatus(UUID uniqueID, boolean status, InetAddress commitAddress) throws SQLException;
 }
