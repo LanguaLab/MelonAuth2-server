@@ -24,20 +24,23 @@ public class GetUUIDStatusHandler extends AbstractHandler {
     private final DataSearcher dataSearcher;
     private final VerificationCodeManager verificationCodeManager;
     private final SkinServer skinServer;
-    private final MelonTOTP totpServer;
+    private final MelonTOTP oTPServer;
+    private final long TRUNCATE_VALUE = 0x100000000L;
+    private final long OTP_EXPIRATION = 30000;
+
 
     public GetUUIDStatusHandler(int limit, long periodInMilliseconds, HttpServer httpServer, String handlePath, DataSearcher dataSearcher, VerificationCodeManager verificationCodeManager, SkinServer skinServer) {
         super(limit, periodInMilliseconds, httpServer, handlePath);
         this.dataSearcher = dataSearcher;
         this.verificationCodeManager = verificationCodeManager;
         this.skinServer = skinServer;
-        this.totpServer = new MelonTOTP(Config.instance.secretKey.getBytes(), 0x100000000L, 30000);
+        this.oTPServer = new MelonTOTP(Config.instance.getClientKey().getBytes(), TRUNCATE_VALUE, OTP_EXPIRATION);
     }
 
     @Override
     public void process(HttpExchange httpExchange, InetAddress requestAddress) {
         if (!httpExchange.getRequestHeaders().containsKey("Authorization")) {
-            httpExchange.getResponseHeaders().set("WWW-Authenticate", "MelonTOTP Pass required");
+            httpExchange.getResponseHeaders().set("WWW-Authenticate", oTPServer.getOTPConfig());
             Utils.server.returnNoContent(httpExchange, 401);
             getLimiter().add(requestAddress, 1);
             return;
@@ -50,7 +53,7 @@ public class GetUUIDStatusHandler extends AbstractHandler {
                 getLimiter().add(requestAddress, 1);
                 return;
             }
-            if (!totpServer.verify(passCode)) {
+            if (!oTPServer.verify(passCode)) {
                 Utils.server.returnNoContent(httpExchange, 403);
                 getLimiter().add(requestAddress, 1);
                 return;
@@ -72,7 +75,7 @@ public class GetUUIDStatusHandler extends AbstractHandler {
             return;
         }
         if (!passed) {// block
-            if (!verificationCodeManager.hasVerification(uniqueID) || verificationCodeManager.getVerification(uniqueID).getExpireTime() - System.currentTimeMillis() < Config.instance.verificationRegenTime/*has no existing verification OR exist verification remains less than regen time*/) {
+            if (!verificationCodeManager.hasVerification(uniqueID) || verificationCodeManager.getVerification(uniqueID).getExpireTime() - System.currentTimeMillis() < Config.instance.getVerificationRegenTime()/*has no existing verification OR exist verification remains less than regen time*/) {
                 verificationCodeManager.removeVerification(uniqueID);
                 //create new verification
                 BufferedImage playerSkin;
@@ -93,11 +96,11 @@ public class GetUUIDStatusHandler extends AbstractHandler {
                 String url;
                 try {
                     url = skinServer.putSkin(playerSkin);
-                    long expire = System.currentTimeMillis() + Config.instance.verificationExpireTime;
+                    long expire = System.currentTimeMillis() + Config.instance.getVerificationExpireTime();
                     String skinType = Utils.getPlayerSkinModel(profile);
                     Verification verification = new Verification(uniqueID, playerName, skinType, verificationCode, expire, new URL(url));
                     int code = verificationCodeManager.newVerification(uniqueID, verification);
-                    VerificationNotice verificationNotice = new VerificationNotice(code, Config.instance.verificationExpireTime);
+                    VerificationNotice verificationNotice = new VerificationNotice(code, Config.instance.getVerificationExpireTime());
                     Utils.server.writeJSONAndSend(httpExchange, 200, Utils.gson.toJson(verificationNotice));
                     Utils.logger.log(LogRecord.Level.INFO, "New verification code created: " + code + " for " + profile.name + " (" + uniqueID.toString() + ")");
                 } catch (IOException e) {

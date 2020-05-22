@@ -11,42 +11,45 @@ import java.util.List;
 public class Config {
     public static Config instance;
 
-    @SerializedName("secretKey")
+    @SerializedName("clientKey")
     @Expose
-    public String secretKey;
+    private String clientKey;
+    @SerializedName("proxyKey")
+    @Expose
+    private String proxyKey;
     @SerializedName("APIUrl")
     @Expose
-    public String aPIUrl;
+    private String aPIUrl;
     @SerializedName("CORSList")
     @Expose
-    public List<String> CORSList;
+    private List<String> CORSList;
     @SerializedName("databaseSettings")
     @Expose
-    public DatabaseSettings databaseSettings;
+    private DatabaseSettings databaseSettings;
     @SerializedName("skinServerSettings")
     @Expose
-    public SkinServerSettings skinServerSettings;
+    private SkinServerSettings skinServerSettings;
     @SerializedName("verificationExpireTime")
     @Expose
-    public Long verificationExpireTime;
+    private Long verificationExpireTime;
     @SerializedName("verificationRegenTime")
     @Expose
-    public Long verificationRegenTime;
+    private Long verificationRegenTime;
     @SerializedName("verificationPublicAPIUsageLimit")
     @Expose
-    public VerificationPublicAPIUsageLimit verificationPublicAPIUsageLimit;
+    private VerificationPublicAPIUsageLimit verificationPublicAPIUsageLimit;
     @SerializedName("minecraftServerFailedAttempts")
     @Expose
-    public List<Integer> minecraftServerFailedAttempts = null;
+    private List<Integer> minecraftServerFailedAttempts = null;
     @SerializedName("minimumLogRecordLevel")
     @Expose
-    public String minimumLogRecordLevel;
+    private String minimumLogRecordLevel;
     @SerializedName("applicationOwner")
     @Expose
-    public String applicationOwner;
+    private String applicationOwner;
     @SerializedName("applicationDescription")
     @Expose
-    public String applicationDescription;
+    private String applicationDescription;
 
     public static Config getDefault() {
         Utils.logger.log(LogRecord.Level.INFO, "First startup detected. Generating default config file...");
@@ -54,7 +57,8 @@ public class Config {
     }
 
     public Config check() {
-        if (secretKey == null) secretKey = Utils.getRandomString(64);
+        if (clientKey == null) clientKey = Utils.getRandomString(64);
+        if (proxyKey == null) proxyKey = Utils.getRandomString(16);
         if (aPIUrl == null) aPIUrl = "http://127.0.0.1:11014";
         aPIUrl = Utils.removeSlashAtTheEnd(aPIUrl);
         if (CORSList == null) CORSList = new ArrayList<>();
@@ -85,4 +89,55 @@ public class Config {
         return this;
     }
 
+    public String getClientKey() {
+        return clientKey;
+    }
+
+    public String getProxyKey() {
+        return proxyKey;
+    }
+
+    public String getaPIUrl() {
+        return aPIUrl;
+    }
+
+    public List<String> getCORSList() {
+        return new ArrayList<>(CORSList);
+    }
+
+    public DatabaseSettings getDatabaseSettings() {
+        return databaseSettings;
+    }
+
+    public SkinServerSettings getSkinServerSettings() {
+        return skinServerSettings;
+    }
+
+    public Long getVerificationExpireTime() {
+        return verificationExpireTime;
+    }
+
+    public Long getVerificationRegenTime() {
+        return verificationRegenTime;
+    }
+
+    public VerificationPublicAPIUsageLimit getVerificationPublicAPIUsageLimit() {
+        return verificationPublicAPIUsageLimit;
+    }
+
+    public List<Integer> getMinecraftServerFailedAttempts() {
+        return new ArrayList<>(minecraftServerFailedAttempts);
+    }
+
+    public String getMinimumLogRecordLevel() {
+        return minimumLogRecordLevel;
+    }
+
+    public String getApplicationOwner() {
+        return applicationOwner;
+    }
+
+    public String getApplicationDescription() {
+        return applicationDescription;
+    }
 }

@@ -46,30 +46,30 @@ public class Bootstrap {
         }
 
         Config.instance = config;
-        Utils.logger.addHandler(new ConsoleLogHandler(LogRecord.Level.getFromName(config.minimumLogRecordLevel)));
+        Utils.logger.addHandler(new ConsoleLogHandler(LogRecord.Level.getFromName(config.getMinimumLogRecordLevel())));
 
         File logFolder = new File(dataRoot.getAbsolutePath() + "/logs");
         if (!logFolder.mkdir() && logFolder.isFile()) {
             throw new IllegalArgumentException("LogFolder " + logFolder.getAbsolutePath() + " should be a folder, but found a file.");
         }
         try {
-            Utils.logger.addHandler(new DailyRollingFileLogHandler(LogRecord.Level.getFromName(config.minimumLogRecordLevel), logFolder));
+            Utils.logger.addHandler(new DailyRollingFileLogHandler(LogRecord.Level.getFromName(config.getMinimumLogRecordLevel()), logFolder));
         } catch (IOException e) {
             Utils.logger.log(LogRecord.Level.FATAL, e.toString());
         }
 
         Utils.logger.log(LogRecord.Level.INFO, "Loading server SecretKey...");
-        if (config.secretKey.length() < 64) {
+        if (config.getClientKey().length() < 64) {
             Utils.logger.log(LogRecord.Level.WARN, "Short secret key detected. Remove the secret key object completely from 'config.json' and restart the server to generate a new key to avoid this warning.");
         }
 
         Utils.logger.log(LogRecord.Level.INFO, "Initializing SkinServer...");
-        File skinServerRoot = new File(new File(dataRoot.getAbsolutePath()) + config.skinServerSettings.dataRoot);
-        SkinServer skinServer = new SkinServer(skinServerRoot, config.aPIUrl, config.verificationExpireTime);
+        File skinServerRoot = new File(new File(dataRoot.getAbsolutePath()) + config.getSkinServerSettings().getDataRoot());
+        SkinServer skinServer = new SkinServer(skinServerRoot, config.getaPIUrl(), config.getVerificationExpireTime());
         Runtime.getRuntime().addShutdownHook(new Thread(skinServer::purgeAll));
 
         Utils.logger.log(LogRecord.Level.INFO, "API Starting...");
-        new Server(11014, new SQLiteDataSearcher(dataRoot, Config.instance.databaseSettings.tablePrefix), skinServer);
+        new Server(11014, new SQLiteDataSearcher(dataRoot, Config.instance.getDatabaseSettings().getTablePrefix()), skinServer);
         Utils.logger.log(LogRecord.Level.INFO, "Done(" + (System.currentTimeMillis() - start) / 1000.0 + "s)! All modules have started.");
     }
 }

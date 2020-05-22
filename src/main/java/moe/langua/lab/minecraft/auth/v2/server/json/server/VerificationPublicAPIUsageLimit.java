@@ -10,10 +10,10 @@ public class VerificationPublicAPIUsageLimit {
 
     @SerializedName("getVerificationCodeDetail")
     @Expose
-    public List<Integer> getVerificationCodeDetail = null;
+    private List<Integer> getVerificationCodeDetail = null;
     @SerializedName("sendVerificationRequest")
     @Expose
-    public List<Integer> sendVerificationRequest = null;
+    private List<Integer> sendVerificationRequest = null;
 
     public static VerificationPublicAPIUsageLimit getDefault() {
         VerificationPublicAPIUsageLimit verificationPublicAPIUsageLimit = new VerificationPublicAPIUsageLimit();
@@ -39,4 +39,11 @@ public class VerificationPublicAPIUsageLimit {
         sendVerificationRequest.add(60000);
     }
 
+    public List<Integer> getGetVerificationCodeDetail() {
+        return new ArrayList<>(getVerificationCodeDetail);
+    }
+
+    public List<Integer> getSendVerificationRequest() {
+        return new ArrayList<>(sendVerificationRequest);
+    }
 }

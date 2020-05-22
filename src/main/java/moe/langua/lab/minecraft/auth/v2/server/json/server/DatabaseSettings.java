@@ -8,25 +8,25 @@ public class DatabaseSettings {
 
     @SerializedName("tablePrefix")
     @Expose
-    public String tablePrefix;
+    private String tablePrefix;
     @SerializedName("useMySQL")
     @Expose
-    public Boolean useMySQL;
+    private Boolean useMySQL;
     @SerializedName("mysqlHost")
     @Expose
-    public String mysqlHost;
+    private String mysqlHost;
     @SerializedName("mysqlPort")
     @Expose
-    public Integer mysqlPort;
+    private Integer mysqlPort;
     @SerializedName("mysqlDatabase")
     @Expose
-    public String mysqlDatabase;
+    private String mysqlDatabase;
     @SerializedName("mysqlUsername")
     @Expose
-    public String mysqlUsername;
+    private String mysqlUsername;
     @SerializedName("mysqlPassword")
     @Expose
-    public String mysqlPassword;
+    private String mysqlPassword;
 
     public static DatabaseSettings getDefault() {
         return new DatabaseSettings().check();
@@ -43,4 +43,31 @@ public class DatabaseSettings {
         return this;
     }
 
+    public String getTablePrefix() {
+        return tablePrefix;
+    }
+
+    public Boolean getUseMySQL() {
+        return useMySQL;
+    }
+
+    public String getMysqlHost() {
+        return mysqlHost;
+    }
+
+    public Integer getMysqlPort() {
+        return mysqlPort;
+    }
+
+    public String getMysqlDatabase() {
+        return mysqlDatabase;
+    }
+
+    public String getMysqlUsername() {
+        return mysqlUsername;
+    }
+
+    public String getMysqlPassword() {
+        return mysqlPassword;
+    }
 }

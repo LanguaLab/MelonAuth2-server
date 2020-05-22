@@ -11,10 +11,10 @@ public class SkinServerSettings {
 
     @SerializedName("dataRoot")
     @Expose
-    public String dataRoot;
+    private String dataRoot;
     @SerializedName("usageLimit")
     @Expose
-    public List<Integer> usageLimit = null;
+    private List<Integer> usageLimit = null;
 
 
     public static SkinServerSettings getDefault() {
@@ -26,9 +26,17 @@ public class SkinServerSettings {
         dataRoot = Utils.removeSlashAtTheEnd(dataRoot);
         if (usageLimit == null || usageLimit.size() < 2) {
             usageLimit = new ArrayList<>();
-            usageLimit.add(20);
-            usageLimit.add(60000);
+            usageLimit.add(100);
+            usageLimit.add(10000);
         }
         return this;
+    }
+
+    public String getDataRoot() {
+        return dataRoot;
+    }
+
+    public List<Integer> getUsageLimit() {
+        return new ArrayList<>(usageLimit);
     }
 }

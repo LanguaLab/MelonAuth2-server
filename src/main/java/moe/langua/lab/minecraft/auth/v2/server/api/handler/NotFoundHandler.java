@@ -15,8 +15,8 @@ public class NotFoundHandler extends AbstractHandler {
     public NotFoundHandler(int limit, long periodInMilliseconds, HttpServer httpServer, String handlePath) {
         super(limit, periodInMilliseconds, httpServer, handlePath);
         Overview overview = Overview.getDefault();
-        overview.description = Config.instance.applicationDescription;
-        overview.applicationOwner = Config.instance.applicationOwner;
+        overview.description = Config.instance.getApplicationDescription();
+        overview.applicationOwner = Config.instance.getApplicationOwner();
         status = Utils.gson.toJson(overview);
     }
 

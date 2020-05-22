@@ -53,7 +53,7 @@ public abstract class AbstractHandler implements HttpHandler {
             }
             if (httpExchange.getRequestHeaders().containsKey("Origin")) {
                 String origin = Utils.removeSlashAtTheEnd(httpExchange.getRequestHeaders().getFirst("Origin"));
-                if (Config.instance.CORSList.contains(origin))
+                if (Config.instance.getCORSList().contains(origin))
                     httpExchange.getResponseHeaders().set("Access-Control-Allow-Origin", origin);
             }
             process:
