@@ -65,7 +65,7 @@ public class Bootstrap {
 
         Utils.logger.log(LogRecord.Level.INFO, "Initializing SkinServer...");
         File skinServerRoot = new File(new File(dataRoot.getAbsolutePath()) + config.getSkinServerSettings().getDataRoot());
-        SkinServer skinServer = new SkinServer(skinServerRoot, config.getaPIUrl(), config.getVerificationExpireTime());
+        SkinServer skinServer = new SkinServer(skinServerRoot, config.getAPIUrl(), config.getVerificationExpireTime());
         Runtime.getRuntime().addShutdownHook(new Thread(skinServer::purgeAll));
 
         Utils.logger.log(LogRecord.Level.INFO, "API Starting...");

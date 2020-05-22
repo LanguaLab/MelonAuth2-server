@@ -97,7 +97,7 @@ public class Config {
         return proxyKey;
     }
 
-    public String getaPIUrl() {
+    public String getAPIUrl() {
         return aPIUrl;
     }
 
