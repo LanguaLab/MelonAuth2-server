@@ -11,6 +11,10 @@ import java.util.UUID;
 public class SQLiteDataSearcher implements DataSearcher {
     private final Connection jDBCConnection;
     private final String TABLE_PREFIX;
+    private final PreparedStatement checkPlayerExistenceStatement;
+    private final PreparedStatement insertStatement;
+    private final PreparedStatement getStatusStatement;
+    private final PreparedStatement updateStatement;
 
     public SQLiteDataSearcher(File dataRoot, String tablePrefix) throws IllegalArgumentException, SQLException {
         Utils.logger.log(LogRecord.Level.INFO, "Initializing SQLite for verification data storage...");
@@ -25,8 +29,8 @@ public class SQLiteDataSearcher implements DataSearcher {
         String initializeTable =
                 "CREATE TABLE IF NOT EXISTS " + TABLE_PREFIX + "Verifications (\n" +
                         " RecordID INTEGER PRIMARY KEY AUTOINCREMENT,\n" +
-                        " UUIDMost INTEGER,\n" +
-                        " UUIDLeast INTEGER,\n" +
+                        " UniqueIDMost INTEGER,\n" +
+                        " UniqueIDLeast INTEGER,\n" +
                         " Status BOOLEAN,\n" +
                         " CommitIPAddress TEXT,\n" +
                         " CommitTime INTEGER\n" +
@@ -47,44 +51,53 @@ public class SQLiteDataSearcher implements DataSearcher {
             }
         }));//close connection when shutdown the server
 
-        Utils.logger.log(LogRecord.Level.INFO, "SQLite has been loaded successfully.");
+        checkPlayerExistenceStatement = jDBCConnection.prepareStatement(
+                "SELECT Count(RecordID) AS Count FROM " + TABLE_PREFIX + "Verifications\n" +
+                        "WHERE UniqueIDMost = ? AND UniqueIDLeast = ?;");
+
+        insertStatement = jDBCConnection.prepareStatement(
+                "INSERT INTO " + TABLE_PREFIX + "Verifications(UniqueIDMost,UniqueIDLeast,Status) VALUES(?,?,?);");
+
+        getStatusStatement = jDBCConnection.prepareStatement(
+                "SELECT Status FROM " + TABLE_PREFIX + "Verifications " +
+                        "WHERE UniqueIDMost = ? AND UniqueIDLeast = ?;");
+
+        updateStatement = jDBCConnection.prepareStatement(
+                "UPDATE " + TABLE_PREFIX + "Verifications SET Status = ? ,CommitIPAddress = ? ,CommitTime = ? " +
+                        "WHERE UniqueIDMost = ? AND UniqueIDLeast = ?;");
+
+        Utils.logger.log(LogRecord.Level.INFO, "SQLite has been loaded.");
     }
 
     @Override
-    public boolean getPlayerStatus(UUID uniqueID) throws SQLException {
-        String checkIfAPlayerExistInDatabase = "" +
-                "SELECT Count(RecordID) AS Count FROM " + TABLE_PREFIX + "Verifications\n" +
-                "WHERE UUIDMost=" + uniqueID.getMostSignificantBits() + " AND UUIDLeast=" + uniqueID.getLeastSignificantBits() + ";";
-        String insertVerificationStatement = "INSERT INTO " + TABLE_PREFIX + "Verifications(UniqueIDMost,UniqueIDLeast,Status) VALUES(?,?,?)";
-        String getVerificationStatusStatement = "SELECT Status FROM " + TABLE_PREFIX + "Verifications " +
-                "WHERE UniqueIDMost = " + uniqueID.getMostSignificantBits() + " AND UniqueIDLeast = " + uniqueID.getLeastSignificantBits() + ";";
+    public synchronized boolean getPlayerStatus(UUID uniqueID) throws SQLException {
+        checkPlayerExistenceStatement.setLong(1, uniqueID.getMostSignificantBits());
+        checkPlayerExistenceStatement.setLong(2, uniqueID.getLeastSignificantBits());
+        ResultSet resultSet = checkPlayerExistenceStatement.executeQuery();
 
-        try (Statement statementInstance = jDBCConnection.createStatement()) {
-            ResultSet resultSet = statementInstance.executeQuery(checkIfAPlayerExistInDatabase);
-            if (resultSet.getInt(0) == 0) {
-                //insert new record
-                PreparedStatement insertStatement = jDBCConnection.prepareStatement(insertVerificationStatement);
-                insertStatement.setLong(0, uniqueID.getMostSignificantBits());
-                insertStatement.setLong(1, uniqueID.getLeastSignificantBits());
-                insertStatement.setBoolean(2, false);
-                insertStatement.executeUpdate();
-                return false;
-            } else {
-                //lookup status and return
-                ResultSet statusResultSet = jDBCConnection.createStatement().executeQuery(getVerificationStatusStatement);
-                return statusResultSet.getBoolean(0);
-            }
+        if (resultSet.getLong(1) == 0) {
+            //insert new record
+            insertStatement.setLong(1, uniqueID.getMostSignificantBits());
+            insertStatement.setLong(2, uniqueID.getLeastSignificantBits());
+            insertStatement.setBoolean(3, false);
+            insertStatement.executeUpdate();
+            return false;
+        } else {
+            //lookup status and return
+            getStatusStatement.setLong(1, uniqueID.getMostSignificantBits());
+            getStatusStatement.setLong(2, uniqueID.getLeastSignificantBits());
+            ResultSet statusResultSet = getStatusStatement.executeQuery();
+            return statusResultSet.getBoolean("Status");
         }
     }
 
     @Override
-    public void setPlayerStatus(UUID uniqueID, boolean status, InetAddress commitAddress) throws SQLException {
-        String updateStatement = "UPDATE " + TABLE_PREFIX + "Verifications SET Status = ? ,CommitIPAddress = ? ,CommitTime = ? " +
-                "WHERE UniqueIDMost = " + uniqueID.getMostSignificantBits() + " AND UniqueIDLeast = " + uniqueID.getLeastSignificantBits() + ";";
-        PreparedStatement preparedStatement = jDBCConnection.prepareStatement(updateStatement);
-        preparedStatement.setBoolean(0, status);
-        preparedStatement.setString(1, commitAddress.toString());
-        preparedStatement.setLong(2, System.currentTimeMillis());
-        preparedStatement.executeUpdate();
+    public synchronized void setPlayerStatus(UUID uniqueID, boolean status, InetAddress commitAddress) throws SQLException {
+        updateStatement.setBoolean(1, status);
+        updateStatement.setString(2, commitAddress.toString());
+        updateStatement.setLong(3, System.currentTimeMillis());
+        updateStatement.setLong(4, uniqueID.getMostSignificantBits());
+        updateStatement.setLong(5, uniqueID.getLeastSignificantBits());
+        updateStatement.executeUpdate();
     }
 }

@@ -19,39 +19,35 @@ import java.sql.SQLException;
 
 public class Bootstrap {
 
-    public static void main(String... args) throws SQLException, ClassNotFoundException, IllegalAccessException, InstantiationException {
+    public static void main(String... args) throws SQLException, IOException {
         long start = System.currentTimeMillis();
         System.out.println("Loading runtime...");
         Gson prettyGson = new GsonBuilder().setPrettyPrinting().create();
         File dataRoot = new File("");
         File configFile = new File(dataRoot.getAbsolutePath() + "/config.json");
         Config config;
-        try {
-            if (configFile.createNewFile()) {
-                config = Config.getDefault();
-            } else if (configFile.isFile()) {
-                config = Utils.gson.fromJson(new FileReader(configFile), Config.class);
-            } else {
-                throw new IllegalArgumentException(configFile.getAbsolutePath() + " should be a file, but found a directory.");
-            }
+
+        if (configFile.createNewFile()) {
+            config = Config.getDefault();
+        } else if (configFile.isFile()) {
+            config = Utils.gson.fromJson(new FileReader(configFile), Config.class);
             config.check();
-            FileWriter writer = new FileWriter(configFile, false);
-            writer.write(prettyGson.toJson(config));
-            writer.flush();
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.exit(-1);
-            return;
+        } else {
+            throw new IOException(configFile.getAbsolutePath() + " should be a file, but found a directory.");
         }
+        FileWriter writer = new FileWriter(configFile, false);
+        writer.write(prettyGson.toJson(config));
+        writer.flush();
+        writer.close();
 
         Config.instance = config;
         Utils.logger.addHandler(new ConsoleLogHandler(LogRecord.Level.getFromName(config.getMinimumLogRecordLevel())));
 
         File logFolder = new File(dataRoot.getAbsolutePath() + "/logs");
         if (!logFolder.mkdir() && logFolder.isFile()) {
-            throw new IllegalArgumentException("LogFolder " + logFolder.getAbsolutePath() + " should be a folder, but found a file.");
+            throw new IOException("LogFolder " + logFolder.getAbsolutePath() + " should be a folder, but found a file.");
         }
+
         try {
             Utils.logger.addHandler(new DailyRollingFileLogHandler(LogRecord.Level.getFromName(config.getMinimumLogRecordLevel()), logFolder));
         } catch (IOException e) {
@@ -64,7 +60,8 @@ public class Bootstrap {
         }
 
         Utils.logger.log(LogRecord.Level.INFO, "Initializing SkinServer...");
-        File skinServerRoot = new File(new File(dataRoot.getAbsolutePath()) + config.getSkinServerSettings().getDataRoot());
+        File skinServerRoot = new File(new File(dataRoot.getAbsolutePath()) + "/" + config.getSkinServerSettings().getDataRoot());
+
         SkinServer skinServer = new SkinServer(skinServerRoot, config.getAPIUrl(), config.getVerificationExpireTime());
         Runtime.getRuntime().addShutdownHook(new Thread(skinServer::purgeAll));
 

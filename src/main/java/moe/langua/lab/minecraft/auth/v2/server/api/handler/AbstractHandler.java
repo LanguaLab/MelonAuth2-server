@@ -32,12 +32,12 @@ public abstract class AbstractHandler implements HttpHandler {
     public void handle(HttpExchange httpExchange) {
         new Thread(() -> {
             long startTime = System.nanoTime();
-            if(!httpExchange.getRequestHeaders().containsKey("Proxy-Authorization")){
-                Utils.server.returnNoContent(httpExchange,407);
+            if (!httpExchange.getRequestHeaders().containsKey("Proxy-Authorization")) {
+                Utils.server.returnNoContent(httpExchange, 407);
                 return;
-            }else if(!httpExchange.getRequestHeaders().getFirst("Proxy-Authorization").equals(Config.instance.getProxyKey())){
-                Utils.server.returnNoContent(httpExchange,403);
-                Utils.logger.log(LogRecord.Level.WARN, httpExchange.getRemoteAddress().toString() + " tried to " + httpExchange.getRequestMethod() + " " + httpExchange.getRequestURI().getPath() + " with a wrong proxy password("+httpExchange.getRequestHeaders().getFirst("Proxy-Authorization")+").");
+            } else if (!httpExchange.getRequestHeaders().getFirst("Proxy-Authorization").equals(Config.instance.getProxyKey())) {
+                Utils.server.returnNoContent(httpExchange, 403);
+                Utils.logger.log(LogRecord.Level.WARN, httpExchange.getRemoteAddress().toString() + " tried to " + httpExchange.getRequestMethod() + " " + httpExchange.getRequestURI().getPath() + " with a wrong proxy password(" + httpExchange.getRequestHeaders().getFirst("Proxy-Authorization") + ").");
                 return;
             }
             InetAddress requestAddress;

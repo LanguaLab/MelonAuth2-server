@@ -1,5 +1,7 @@
 package moe.langua.lab.minecraft.auth.v2.server.util;
 
+import moe.langua.lab.utils.logger.utils.LogRecord;
+
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -12,9 +14,8 @@ public class SkinServer {
     private final long expireTime;
 
     public SkinServer(File dataRoot, String host, long expireTime) {
-        if (!dataRoot.exists()) dataRoot.mkdir();
-        if (!dataRoot.isDirectory()) {
-            System.exit(-3);
+        if (!dataRoot.mkdir() && !dataRoot.isDirectory()) {
+            Utils.logger.log(LogRecord.Level.ERROR, new IOException("LogFolder " + dataRoot.getAbsolutePath() + " should be a folder, but found a file.").toString());
         }
         this.dataRoot = dataRoot;
         this.host = host;

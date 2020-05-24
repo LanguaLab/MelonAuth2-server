@@ -7,10 +7,10 @@ public class VerificationNotice {
 
     @SerializedName("verificationCode")
     @Expose
-    public int verificationCode;
+    private int verificationCode;
     @SerializedName("expireIn")
     @Expose
-    public Long expireIn;
+    private Long expireIn;
 
     public VerificationNotice(int verificationCode, Long expireIn) {
         this.verificationCode = verificationCode;
@@ -18,5 +18,13 @@ public class VerificationNotice {
     }
 
     public VerificationNotice() {
+    }
+
+    public int getVerificationCode() {
+        return verificationCode;
+    }
+
+    public Long getExpireIn() {
+        return expireIn;
     }
 }

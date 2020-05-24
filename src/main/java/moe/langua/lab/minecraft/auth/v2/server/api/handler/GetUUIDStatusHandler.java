@@ -17,16 +17,18 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.UUID;
 
 public class GetUUIDStatusHandler extends AbstractHandler {
+    private static final long TRUNCATE_VALUE = 0x100000000L;
+    private static final long OTP_EXPIRATION = 30000;
+
     private final DataSearcher dataSearcher;
     private final VerificationCodeManager verificationCodeManager;
     private final SkinServer skinServer;
     private final MelonTOTP oTPServer;
-    private final long TRUNCATE_VALUE = 0x100000000L;
-    private final long OTP_EXPIRATION = 30000;
 
 
     public GetUUIDStatusHandler(int limit, long periodInMilliseconds, HttpServer httpServer, String handlePath, DataSearcher dataSearcher, VerificationCodeManager verificationCodeManager, SkinServer skinServer) {
@@ -34,7 +36,7 @@ public class GetUUIDStatusHandler extends AbstractHandler {
         this.dataSearcher = dataSearcher;
         this.verificationCodeManager = verificationCodeManager;
         this.skinServer = skinServer;
-        this.oTPServer = new MelonTOTP(Config.instance.getClientKey().getBytes(), TRUNCATE_VALUE, OTP_EXPIRATION);
+        this.oTPServer = new MelonTOTP(Config.instance.getClientKey().getBytes(StandardCharsets.UTF_8), TRUNCATE_VALUE, OTP_EXPIRATION);
     }
 
     @Override
@@ -59,6 +61,7 @@ public class GetUUIDStatusHandler extends AbstractHandler {
                 return;
             }
         }
+
         UUID uniqueID;
         try {
             uniqueID = UUID.fromString(Utils.getLastChild(httpExchange.getRequestURI()));
@@ -66,6 +69,12 @@ public class GetUUIDStatusHandler extends AbstractHandler {
             Utils.server.errorReturn(httpExchange, 404, Utils.server.NOT_FOUND_ERROR);
             return;
         }
+
+        if (uniqueID.getLeastSignificantBits() == 0 && uniqueID.getMostSignificantBits() == 0) {
+            Utils.server.returnNoContent(httpExchange, 204);
+            return;
+        }
+
         boolean passed;
         try {
             passed = dataSearcher.getPlayerStatus(uniqueID);
