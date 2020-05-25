@@ -3,7 +3,7 @@ package moe.langua.lab.minecraft.auth.v2.server.api.handler;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import moe.langua.lab.minecraft.auth.v2.server.json.mojang.Profile;
-import moe.langua.lab.minecraft.auth.v2.server.json.server.Config;
+import moe.langua.lab.minecraft.auth.v2.server.json.server.settngs.MainSettings;
 import moe.langua.lab.minecraft.auth.v2.server.json.server.VerificationNotice;
 import moe.langua.lab.minecraft.auth.v2.server.sql.DataSearcher;
 import moe.langua.lab.minecraft.auth.v2.server.util.SkinServer;
@@ -21,7 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.UUID;
 
-public class GetUUIDStatusHandler extends AbstractHandler {
+public class JoinHandler extends AbstractHandler {
     private static final long TRUNCATE_VALUE = 0x100000000L;
     private static final long OTP_EXPIRATION = 30000;
 
@@ -31,12 +31,12 @@ public class GetUUIDStatusHandler extends AbstractHandler {
     private final MelonTOTP oTPServer;
 
 
-    public GetUUIDStatusHandler(int limit, long periodInMilliseconds, HttpServer httpServer, String handlePath, DataSearcher dataSearcher, VerificationCodeManager verificationCodeManager, SkinServer skinServer) {
+    public JoinHandler(int limit, long periodInMilliseconds, HttpServer httpServer, String handlePath, DataSearcher dataSearcher, VerificationCodeManager verificationCodeManager, SkinServer skinServer) {
         super(limit, periodInMilliseconds, httpServer, handlePath);
         this.dataSearcher = dataSearcher;
         this.verificationCodeManager = verificationCodeManager;
         this.skinServer = skinServer;
-        this.oTPServer = new MelonTOTP(Config.instance.getClientKey().getBytes(StandardCharsets.UTF_8), TRUNCATE_VALUE, OTP_EXPIRATION);
+        this.oTPServer = new MelonTOTP(MainSettings.instance.getClientKey().getBytes(StandardCharsets.UTF_8), TRUNCATE_VALUE, OTP_EXPIRATION);
     }
 
     @Override
@@ -84,7 +84,7 @@ public class GetUUIDStatusHandler extends AbstractHandler {
             return;
         }
         if (!passed) {// block
-            if (!verificationCodeManager.hasVerification(uniqueID) || verificationCodeManager.getVerification(uniqueID).getExpireTime() - System.currentTimeMillis() < Config.instance.getVerificationRegenTime()/*has no existing verification OR exist verification remains less than regen time*/) {
+            if (!verificationCodeManager.hasVerification(uniqueID) || verificationCodeManager.getVerification(uniqueID).getExpireTime() - System.currentTimeMillis() < MainSettings.instance.getVerificationRegenTime()/*has no existing verification OR exist verification remains less than regen time*/) {
                 verificationCodeManager.removeVerification(uniqueID);
                 //create new verification
                 BufferedImage playerSkin;
@@ -105,11 +105,11 @@ public class GetUUIDStatusHandler extends AbstractHandler {
                 String url;
                 try {
                     url = skinServer.putSkin(playerSkin);
-                    long expire = System.currentTimeMillis() + Config.instance.getVerificationExpireTime();
+                    long expire = System.currentTimeMillis() + MainSettings.instance.getVerificationExpireTime();
                     String skinType = Utils.getPlayerSkinModel(profile);
                     Verification verification = new Verification(uniqueID, playerName, skinType, verificationCode, expire, new URL(url));
                     int code = verificationCodeManager.newVerification(uniqueID, verification);
-                    VerificationNotice verificationNotice = new VerificationNotice(code, Config.instance.getVerificationExpireTime());
+                    VerificationNotice verificationNotice = new VerificationNotice(code, MainSettings.instance.getVerificationExpireTime());
                     Utils.server.writeJSONAndSend(httpExchange, 200, Utils.gson.toJson(verificationNotice));
                     Utils.logger.log(LogRecord.Level.INFO, "New verification code created: " + code + " for " + profile.name + " (" + uniqueID.toString() + ")");
                 } catch (IOException e) {

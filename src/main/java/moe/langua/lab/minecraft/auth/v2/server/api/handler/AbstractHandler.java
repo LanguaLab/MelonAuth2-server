@@ -4,7 +4,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import moe.langua.lab.minecraft.auth.v2.server.api.Limiter;
-import moe.langua.lab.minecraft.auth.v2.server.json.server.Config;
+import moe.langua.lab.minecraft.auth.v2.server.json.server.settngs.MainSettings;
 import moe.langua.lab.minecraft.auth.v2.server.util.Utils;
 import moe.langua.lab.utils.logger.utils.LogRecord;
 
@@ -35,7 +35,7 @@ public abstract class AbstractHandler implements HttpHandler {
             if (!httpExchange.getRequestHeaders().containsKey("Proxy-Authorization")) {
                 Utils.server.returnNoContent(httpExchange, 407);
                 return;
-            } else if (!httpExchange.getRequestHeaders().getFirst("Proxy-Authorization").equals(Config.instance.getProxyKey())) {
+            } else if (!httpExchange.getRequestHeaders().getFirst("Proxy-Authorization").equals(MainSettings.instance.getProxyKey())) {
                 Utils.server.returnNoContent(httpExchange, 403);
                 Utils.logger.log(LogRecord.Level.WARN, httpExchange.getRemoteAddress().toString() + " tried to " + httpExchange.getRequestMethod() + " " + httpExchange.getRequestURI().getPath() + " with a wrong proxy password(" + httpExchange.getRequestHeaders().getFirst("Proxy-Authorization") + ").");
                 return;
@@ -61,7 +61,7 @@ public abstract class AbstractHandler implements HttpHandler {
             }
             if (httpExchange.getRequestHeaders().containsKey("Origin")) {
                 String origin = Utils.removeSlashAtTheEnd(httpExchange.getRequestHeaders().getFirst("Origin"));
-                if (Config.instance.getCORSList().contains(origin))
+                if (MainSettings.instance.getCORSList().contains(origin))
                     httpExchange.getResponseHeaders().set("Access-Control-Allow-Origin", origin);
             }
             process:

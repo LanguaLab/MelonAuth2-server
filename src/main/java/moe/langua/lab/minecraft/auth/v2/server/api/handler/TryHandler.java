@@ -17,11 +17,11 @@ import java.util.UUID;
 import static moe.langua.lab.minecraft.auth.v2.server.util.Utils.server.INTERNAL_ERROR;
 import static moe.langua.lab.minecraft.auth.v2.server.util.Utils.server.SERVER_NETWORK_ERROR;
 
-public class VerificationTryHandler extends AbstractHandler {
+public class TryHandler extends AbstractHandler {
     private final VerificationCodeManager verificationCodeManager;
     private final DataSearcher dataSearcher;
 
-    public VerificationTryHandler(int limit, long resetPeriod, HttpServer httpServer, String handlePath, DataSearcher dataSearcher, VerificationCodeManager verificationCodeManager) {
+    public TryHandler(int limit, long resetPeriod, HttpServer httpServer, String handlePath, DataSearcher dataSearcher, VerificationCodeManager verificationCodeManager) {
         super(limit, resetPeriod, httpServer, handlePath);
         this.dataSearcher = dataSearcher;
         this.verificationCodeManager = verificationCodeManager;

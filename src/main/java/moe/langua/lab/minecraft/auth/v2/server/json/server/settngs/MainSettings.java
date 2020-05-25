@@ -1,4 +1,4 @@
-package moe.langua.lab.minecraft.auth.v2.server.json.server;
+package moe.langua.lab.minecraft.auth.v2.server.json.server.settngs;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -8,12 +8,15 @@ import moe.langua.lab.utils.logger.utils.LogRecord;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Config {
-    public static Config instance;
+public class MainSettings {
+    public static MainSettings instance;
 
     @SerializedName("clientKey")
     @Expose
     private String clientKey;
+    @SerializedName("queueKey")
+    @Expose
+    private String queueKey;
     @SerializedName("proxyKey")
     @Expose
     private String proxyKey;
@@ -37,7 +40,7 @@ public class Config {
     private Long verificationRegenTime;
     @SerializedName("verificationPublicAPIUsageLimit")
     @Expose
-    private VerificationPublicAPIUsageLimit verificationPublicAPIUsageLimit;
+    private APIUsageSettings APIUsageSettings;
     @SerializedName("minecraftServerFailedAttempts")
     @Expose
     private List<Integer> minecraftServerFailedAttempts = null;
@@ -51,13 +54,14 @@ public class Config {
     @Expose
     private String applicationDescription;
 
-    public static Config getDefault() {
+    public static MainSettings getDefault() {
         Utils.logger.log(LogRecord.Level.INFO, "First startup detected. Generating default config file...");
-        return new Config().check();
+        return new MainSettings().check();
     }
 
-    public Config check() {
+    public MainSettings check() {
         if (clientKey == null) clientKey = Utils.getRandomString(64);
+        if (queueKey == null) queueKey = Utils.getRandomString(16);
         if (proxyKey == null) proxyKey = Utils.getRandomString(16);
         if (aPIUrl == null) aPIUrl = "http://127.0.0.1:11014";
         aPIUrl = Utils.removeSlashAtTheEnd(aPIUrl);
@@ -67,8 +71,8 @@ public class Config {
         }
         if (databaseSettings == null) databaseSettings = DatabaseSettings.getDefault();
         if (skinServerSettings == null) skinServerSettings = SkinServerSettings.getDefault();
-        if (verificationPublicAPIUsageLimit == null)
-            verificationPublicAPIUsageLimit = VerificationPublicAPIUsageLimit.getDefault();
+        if (APIUsageSettings == null)
+            APIUsageSettings = APIUsageSettings.getDefault();
         if (verificationExpireTime == null) verificationExpireTime = 1800000L;
         if (verificationRegenTime == null) verificationRegenTime = 900000L;
         if (verificationExpireTime < verificationRegenTime) verificationRegenTime = verificationExpireTime;
@@ -84,7 +88,7 @@ public class Config {
 
         databaseSettings.check();
         skinServerSettings.check();
-        verificationPublicAPIUsageLimit.check();
+        APIUsageSettings.check();
 
         return this;
     }
@@ -95,6 +99,10 @@ public class Config {
 
     public String getProxyKey() {
         return proxyKey;
+    }
+
+    public String getQueueKey() {
+        return queueKey;
     }
 
     public String getAPIUrl() {
@@ -121,8 +129,8 @@ public class Config {
         return verificationRegenTime;
     }
 
-    public VerificationPublicAPIUsageLimit getVerificationPublicAPIUsageLimit() {
-        return verificationPublicAPIUsageLimit;
+    public APIUsageSettings getAPIUsageSettings() {
+        return APIUsageSettings;
     }
 
     public List<Integer> getMinecraftServerFailedAttempts() {

@@ -2,7 +2,7 @@ package moe.langua.lab.minecraft.auth.v2.server.api;
 
 import com.sun.net.httpserver.HttpServer;
 import moe.langua.lab.minecraft.auth.v2.server.api.handler.*;
-import moe.langua.lab.minecraft.auth.v2.server.json.server.Config;
+import moe.langua.lab.minecraft.auth.v2.server.json.server.settngs.MainSettings;
 import moe.langua.lab.minecraft.auth.v2.server.sql.DataSearcher;
 import moe.langua.lab.minecraft.auth.v2.server.util.SkinServer;
 import moe.langua.lab.minecraft.auth.v2.server.util.VerificationCodeManager;
@@ -23,11 +23,12 @@ public class Server {
         VerificationCodeManager verificationCodeManager = new VerificationCodeManager();
 
         //initialize handlers
-        new NotFoundHandler(-1, 0, httpServer, "/");
-        new GetUUIDStatusHandler(Config.instance.getMinecraftServerFailedAttempts().get(0), Config.instance.getMinecraftServerFailedAttempts().get(1), httpServer, "/get/uuid/", searcher, verificationCodeManager, skinServer);
-        new GetVerificationCodeDetailHandler(Config.instance.getVerificationPublicAPIUsageLimit().getGetVerificationCodeDetail().get(0), Config.instance.getVerificationPublicAPIUsageLimit().getGetVerificationCodeDetail().get(1), httpServer, "/get/code/", verificationCodeManager);
-        new LocalSkinServerHandler(Config.instance.getSkinServerSettings().getUsageLimit().get(0), Config.instance.getSkinServerSettings().getUsageLimit().get(1), httpServer, "/get/skin/", skinServer.getDataRoot());
-        new VerificationTryHandler(Config.instance.getVerificationPublicAPIUsageLimit().getSendVerificationRequest().get(0), Config.instance.getVerificationPublicAPIUsageLimit().getSendVerificationRequest().get(1), httpServer, "/try/", searcher, verificationCodeManager);
+        new DefaultHandler(-1, 0, httpServer, "/");
+        new JoinHandler(MainSettings.instance.getMinecraftServerFailedAttempts().get(0), MainSettings.instance.getMinecraftServerFailedAttempts().get(1), httpServer, "/join/", searcher, verificationCodeManager, skinServer);
+        new StatusHandler(MainSettings.instance.getAPIUsageSettings().getGetStatus().get(0), MainSettings.instance.getAPIUsageSettings().getGetStatus().get(1), httpServer, "/get/status/", searcher);
+        new GetCodeHandler(MainSettings.instance.getAPIUsageSettings().getGetCode().get(0), MainSettings.instance.getAPIUsageSettings().getGetCode().get(1), httpServer, "/get/code/", verificationCodeManager);
+        new GetSkinHandler(MainSettings.instance.getSkinServerSettings().getUsageLimit().get(0), MainSettings.instance.getSkinServerSettings().getUsageLimit().get(1), httpServer, "/get/skin/", skinServer.getDataRoot());
+        new TryHandler(MainSettings.instance.getAPIUsageSettings().getVerify().get(0), MainSettings.instance.getAPIUsageSettings().getVerify().get(1), httpServer, "/verify/", searcher, verificationCodeManager);
         httpServer.start();
     }
 }

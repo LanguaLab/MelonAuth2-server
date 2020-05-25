@@ -3,7 +3,7 @@ package moe.langua.lab.minecraft.auth.v2.server;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import moe.langua.lab.minecraft.auth.v2.server.api.Server;
-import moe.langua.lab.minecraft.auth.v2.server.json.server.Config;
+import moe.langua.lab.minecraft.auth.v2.server.json.server.settngs.MainSettings;
 import moe.langua.lab.minecraft.auth.v2.server.sql.SQLiteDataSearcher;
 import moe.langua.lab.minecraft.auth.v2.server.util.SkinServer;
 import moe.langua.lab.minecraft.auth.v2.server.util.Utils;
@@ -25,12 +25,12 @@ public class Bootstrap {
         Gson prettyGson = new GsonBuilder().setPrettyPrinting().create();
         File dataRoot = new File("");
         File configFile = new File(dataRoot.getAbsolutePath() + "/config.json");
-        Config config;
+        MainSettings config;
 
         if (configFile.createNewFile()) {
-            config = Config.getDefault();
+            config = MainSettings.getDefault();
         } else if (configFile.isFile()) {
-            config = Utils.gson.fromJson(new FileReader(configFile), Config.class);
+            config = Utils.gson.fromJson(new FileReader(configFile), MainSettings.class);
             config.check();
         } else {
             throw new IOException(configFile.getAbsolutePath() + " should be a file, but found a directory.");
@@ -40,7 +40,7 @@ public class Bootstrap {
         writer.flush();
         writer.close();
 
-        Config.instance = config;
+        MainSettings.instance = config;
         Utils.logger.addHandler(new ConsoleLogHandler(LogRecord.Level.getFromName(config.getMinimumLogRecordLevel())));
 
         File logFolder = new File(dataRoot.getAbsolutePath() + "/logs");
@@ -66,7 +66,7 @@ public class Bootstrap {
         Runtime.getRuntime().addShutdownHook(new Thread(skinServer::purgeAll));
 
         Utils.logger.log(LogRecord.Level.INFO, "API Starting...");
-        new Server(11014, new SQLiteDataSearcher(dataRoot, Config.instance.getDatabaseSettings().getTablePrefix()), skinServer);
+        new Server(11014, new SQLiteDataSearcher(dataRoot, MainSettings.instance.getDatabaseSettings().getTablePrefix()), skinServer);
         Utils.logger.log(LogRecord.Level.INFO, "Done(" + (System.currentTimeMillis() - start) / 1000.0 + "s)! All modules have started.");
     }
 }

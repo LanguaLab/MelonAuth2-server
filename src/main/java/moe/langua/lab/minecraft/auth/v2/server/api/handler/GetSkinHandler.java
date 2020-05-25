@@ -11,10 +11,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 
-public class LocalSkinServerHandler extends AbstractHandler {
+public class GetSkinHandler extends AbstractHandler {
     private final File dataRoot;
 
-    public LocalSkinServerHandler(int limit, long periodInMilliseconds, HttpServer httpServer, String handlePath, File dataRoot) {
+    public GetSkinHandler(int limit, long periodInMilliseconds, HttpServer httpServer, String handlePath, File dataRoot) {
         super(limit, periodInMilliseconds, httpServer, handlePath);
         this.dataRoot = dataRoot;
     }

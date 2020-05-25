@@ -9,10 +9,10 @@ import moe.langua.lab.minecraft.auth.v2.server.util.VerificationCodeManager;
 
 import java.net.InetAddress;
 
-public class GetVerificationCodeDetailHandler extends AbstractHandler {
+public class GetCodeHandler extends AbstractHandler {
     private final VerificationCodeManager verificationCodeManager;
 
-    public GetVerificationCodeDetailHandler(int limit, long periodInMilliseconds, HttpServer httpServer, String handlePath, VerificationCodeManager verificationCodeManager) {
+    public GetCodeHandler(int limit, long periodInMilliseconds, HttpServer httpServer, String handlePath, VerificationCodeManager verificationCodeManager) {
         super(limit, periodInMilliseconds, httpServer, handlePath);
         this.verificationCodeManager = verificationCodeManager;
     }
