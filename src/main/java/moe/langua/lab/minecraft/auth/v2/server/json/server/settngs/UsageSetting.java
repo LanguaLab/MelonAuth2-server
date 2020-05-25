@@ -5,19 +5,19 @@ import com.google.gson.annotations.SerializedName;
 
 public class UsageSetting {
 
-    public static UsageSetting get(long limitPerCircle,long circleInMillisecond){
-        UsageSetting settingInstance = new UsageSetting();
-        settingInstance.limitPerCircle = limitPerCircle;
-        settingInstance.circleInMillisecond = circleInMillisecond;
-        return settingInstance;
-    }
-
     @SerializedName("limitPerCircle")
     @Expose
     private Long limitPerCircle;
     @SerializedName("circleInMillisecond")
     @Expose
     private Long circleInMillisecond;
+
+    public static UsageSetting get(long limitPerCircle, long circleInMillisecond) {
+        UsageSetting settingInstance = new UsageSetting();
+        settingInstance.limitPerCircle = limitPerCircle;
+        settingInstance.circleInMillisecond = circleInMillisecond;
+        return settingInstance;
+    }
 
     public Long getLimitPerCircle() {
         return limitPerCircle;

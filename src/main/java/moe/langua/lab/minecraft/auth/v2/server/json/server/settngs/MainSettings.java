@@ -76,8 +76,9 @@ public class MainSettings {
         if (verificationExpireTime == null) verificationExpireTime = 1800000L;
         if (verificationRegenTime == null) verificationRegenTime = 900000L;
         if (verificationExpireTime < verificationRegenTime) verificationRegenTime = verificationExpireTime;
-        if (clientAuthenticationFailed == null ) clientAuthenticationFailed = UsageSetting.get(1,60000);
-        if (minimumLogRecordLevel == null || LogRecord.Level.getFromName(minimumLogRecordLevel) == null) minimumLogRecordLevel = "fine";
+        if (clientAuthenticationFailed == null) clientAuthenticationFailed = UsageSetting.get(1, 60000);
+        if (minimumLogRecordLevel == null || LogRecord.Level.getFromName(minimumLogRecordLevel) == null)
+            minimumLogRecordLevel = "fine";
         if (applicationOwner == null) applicationOwner = "LanguaLab";
         if (applicationDescription == null) applicationDescription = "MelonAuth v2 Public API";
 
@@ -111,7 +112,7 @@ public class MainSettings {
         return databaseSettings;
     }
 
-    public String getSkinBase(){
+    public String getSkinBase() {
         return skinBase;
     }
 
