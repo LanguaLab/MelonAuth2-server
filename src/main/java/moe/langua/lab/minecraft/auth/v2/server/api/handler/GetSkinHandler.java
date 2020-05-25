@@ -14,7 +14,7 @@ import java.net.InetAddress;
 public class GetSkinHandler extends AbstractHandler {
     private final File dataRoot;
 
-    public GetSkinHandler(int limit, long periodInMilliseconds, HttpServer httpServer, String handlePath, File dataRoot) {
+    public GetSkinHandler(long limit, long periodInMilliseconds, HttpServer httpServer, String handlePath, File dataRoot) {
         super(limit, periodInMilliseconds, httpServer, handlePath);
         this.dataRoot = dataRoot;
     }

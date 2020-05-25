@@ -29,21 +29,21 @@ public class MainSettings {
     @SerializedName("databaseSettings")
     @Expose
     private DatabaseSettings databaseSettings;
-    @SerializedName("skinServerSettings")
+    @SerializedName("skinBase")
     @Expose
-    private SkinServerSettings skinServerSettings;
+    private String skinBase;
     @SerializedName("verificationExpireTime")
     @Expose
     private Long verificationExpireTime;
     @SerializedName("verificationRegenTime")
     @Expose
     private Long verificationRegenTime;
-    @SerializedName("verificationPublicAPIUsageLimit")
+    @SerializedName("APIUsageSettings")
     @Expose
     private APIUsageSettings APIUsageSettings;
-    @SerializedName("minecraftServerFailedAttempts")
+    @SerializedName("clientAuthenticationFailed")
     @Expose
-    private List<Integer> minecraftServerFailedAttempts = null;
+    private UsageSetting clientAuthenticationFailed = null;
     @SerializedName("minimumLogRecordLevel")
     @Expose
     private String minimumLogRecordLevel;
@@ -70,24 +70,18 @@ public class MainSettings {
             CORSList.set(index, Utils.removeSlashAtTheEnd(CORSList.get(index)));
         }
         if (databaseSettings == null) databaseSettings = DatabaseSettings.getDefault();
-        if (skinServerSettings == null) skinServerSettings = SkinServerSettings.getDefault();
+        if (skinBase == null) skinBase = "./skins";
         if (APIUsageSettings == null)
-            APIUsageSettings = APIUsageSettings.getDefault();
+            APIUsageSettings = moe.langua.lab.minecraft.auth.v2.server.json.server.settngs.APIUsageSettings.getDefault();
         if (verificationExpireTime == null) verificationExpireTime = 1800000L;
         if (verificationRegenTime == null) verificationRegenTime = 900000L;
         if (verificationExpireTime < verificationRegenTime) verificationRegenTime = verificationExpireTime;
-        if (minecraftServerFailedAttempts == null || minecraftServerFailedAttempts.size() < 2) {
-            minecraftServerFailedAttempts = new ArrayList<>();
-            minecraftServerFailedAttempts.add(1);
-            minecraftServerFailedAttempts.add(60000);
-        }
-        if (minimumLogRecordLevel == null) minimumLogRecordLevel = "fine";
-        if (LogRecord.Level.getFromName(minimumLogRecordLevel) == null) minimumLogRecordLevel = "fine";
+        if (clientAuthenticationFailed == null ) clientAuthenticationFailed = UsageSetting.get(1,60000);
+        if (minimumLogRecordLevel == null || LogRecord.Level.getFromName(minimumLogRecordLevel) == null) minimumLogRecordLevel = "fine";
         if (applicationOwner == null) applicationOwner = "LanguaLab";
-        if (applicationDescription == null) applicationDescription = "MelonAuth 2 public api";
+        if (applicationDescription == null) applicationDescription = "MelonAuth v2 Public API";
 
         databaseSettings.check();
-        skinServerSettings.check();
         APIUsageSettings.check();
 
         return this;
@@ -117,8 +111,8 @@ public class MainSettings {
         return databaseSettings;
     }
 
-    public SkinServerSettings getSkinServerSettings() {
-        return skinServerSettings;
+    public String getSkinBase(){
+        return skinBase;
     }
 
     public Long getVerificationExpireTime() {
@@ -133,8 +127,8 @@ public class MainSettings {
         return APIUsageSettings;
     }
 
-    public List<Integer> getMinecraftServerFailedAttempts() {
-        return new ArrayList<>(minecraftServerFailedAttempts);
+    public UsageSetting getClientAuthenticationFailed() {
+        return clientAuthenticationFailed;
     }
 
     public String getMinimumLogRecordLevel() {

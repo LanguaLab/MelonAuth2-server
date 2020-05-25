@@ -15,7 +15,7 @@ public abstract class AbstractHandler implements HttpHandler {
     private final Limiter limiter;
     private final String workerName = this.getClass().getName() + "-Receiver";
 
-    public AbstractHandler(int limit, long periodInMilliseconds, HttpServer httpServer, String handlePath) {
+    public AbstractHandler(long limit, long periodInMilliseconds, HttpServer httpServer, String handlePath) {
         limiter = new Limiter(limit, periodInMilliseconds, handlePath);
         httpServer.createContext(handlePath, this);
     }

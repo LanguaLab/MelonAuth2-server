@@ -25,23 +25,23 @@ public class Bootstrap {
         Gson prettyGson = new GsonBuilder().setPrettyPrinting().create();
         File dataRoot = new File("");
         File configFile = new File(dataRoot.getAbsolutePath() + "/config.json");
-        MainSettings config;
+        MainSettings settings;
 
         if (configFile.createNewFile()) {
-            config = MainSettings.getDefault();
+            settings = MainSettings.getDefault();
         } else if (configFile.isFile()) {
-            config = Utils.gson.fromJson(new FileReader(configFile), MainSettings.class);
-            config.check();
+            settings = Utils.gson.fromJson(new FileReader(configFile), MainSettings.class);
+            settings.check();
         } else {
             throw new IOException(configFile.getAbsolutePath() + " should be a file, but found a directory.");
         }
         FileWriter writer = new FileWriter(configFile, false);
-        writer.write(prettyGson.toJson(config));
+        writer.write(prettyGson.toJson(settings));
         writer.flush();
         writer.close();
 
-        MainSettings.instance = config;
-        Utils.logger.addHandler(new ConsoleLogHandler(LogRecord.Level.getFromName(config.getMinimumLogRecordLevel())));
+        MainSettings.instance = settings;
+        Utils.logger.addHandler(new ConsoleLogHandler(LogRecord.Level.getFromName(settings.getMinimumLogRecordLevel())));
 
         File logFolder = new File(dataRoot.getAbsolutePath() + "/logs");
         if (!logFolder.mkdir() && logFolder.isFile()) {
@@ -49,20 +49,20 @@ public class Bootstrap {
         }
 
         try {
-            Utils.logger.addHandler(new DailyRollingFileLogHandler(LogRecord.Level.getFromName(config.getMinimumLogRecordLevel()), logFolder));
+            Utils.logger.addHandler(new DailyRollingFileLogHandler(LogRecord.Level.getFromName(settings.getMinimumLogRecordLevel()), logFolder));
         } catch (IOException e) {
             Utils.logger.log(LogRecord.Level.FATAL, e.toString());
         }
 
         Utils.logger.log(LogRecord.Level.INFO, "Loading server SecretKey...");
-        if (config.getClientKey().length() < 64) {
+        if (settings.getClientKey().length() < 64) {
             Utils.logger.log(LogRecord.Level.WARN, "Short secret key detected. Remove the secret key object completely from 'config.json' and restart the server to generate a new key to avoid this warning.");
         }
 
         Utils.logger.log(LogRecord.Level.INFO, "Initializing SkinServer...");
-        File skinServerRoot = new File(new File(dataRoot.getAbsolutePath()) + "/" + config.getSkinServerSettings().getDataRoot());
+        File skinServerRoot = new File(new File(dataRoot.getAbsolutePath()) + "/" + settings.getSkinBase());
 
-        SkinServer skinServer = new SkinServer(skinServerRoot, config.getAPIUrl(), config.getVerificationExpireTime());
+        SkinServer skinServer = new SkinServer(skinServerRoot, settings.getAPIUrl(), settings.getVerificationExpireTime());
         Runtime.getRuntime().addShutdownHook(new Thread(skinServer::purgeAll));
 
         Utils.logger.log(LogRecord.Level.INFO, "API Starting...");

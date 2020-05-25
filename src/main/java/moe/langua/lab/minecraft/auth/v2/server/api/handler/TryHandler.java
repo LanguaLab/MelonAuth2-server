@@ -21,7 +21,7 @@ public class TryHandler extends AbstractHandler {
     private final VerificationCodeManager verificationCodeManager;
     private final DataSearcher dataSearcher;
 
-    public TryHandler(int limit, long resetPeriod, HttpServer httpServer, String handlePath, DataSearcher dataSearcher, VerificationCodeManager verificationCodeManager) {
+    public TryHandler(long limit, long resetPeriod, HttpServer httpServer, String handlePath, DataSearcher dataSearcher, VerificationCodeManager verificationCodeManager) {
         super(limit, resetPeriod, httpServer, handlePath);
         this.dataSearcher = dataSearcher;
         this.verificationCodeManager = verificationCodeManager;

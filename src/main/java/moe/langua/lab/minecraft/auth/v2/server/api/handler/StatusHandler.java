@@ -2,8 +2,8 @@ package moe.langua.lab.minecraft.auth.v2.server.api.handler;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
-import moe.langua.lab.minecraft.auth.v2.server.json.server.settngs.MainSettings;
 import moe.langua.lab.minecraft.auth.v2.server.json.server.PlayerStatus;
+import moe.langua.lab.minecraft.auth.v2.server.json.server.settngs.MainSettings;
 import moe.langua.lab.minecraft.auth.v2.server.sql.DataSearcher;
 import moe.langua.lab.minecraft.auth.v2.server.util.Utils;
 import moe.langua.lab.utils.logger.utils.LogRecord;
@@ -15,7 +15,7 @@ import java.util.UUID;
 public class StatusHandler extends AbstractHandler {
     private final DataSearcher dataSearcher;
 
-    public StatusHandler(int limit, long periodInMilliseconds, HttpServer httpServer, String handlePath, DataSearcher dataSearcher) {
+    public StatusHandler(long limit, long periodInMilliseconds, HttpServer httpServer, String handlePath, DataSearcher dataSearcher) {
         super(limit, periodInMilliseconds, httpServer, handlePath);
         this.dataSearcher = dataSearcher;
     }
@@ -27,7 +27,7 @@ public class StatusHandler extends AbstractHandler {
             httpExchange.getResponseHeaders().set("WWW-Authenticate", "Password required");
             Utils.server.returnNoContent(httpExchange, 401);
         } else {
-            if(!httpExchange.getRequestHeaders().getFirst("Authorization").equals(MainSettings.instance.getQueueKey())){
+            if (!httpExchange.getRequestHeaders().getFirst("Authorization").equals(MainSettings.instance.getQueueKey())) {
                 Utils.server.returnNoContent(httpExchange, 403);
                 return;
             }
@@ -55,7 +55,7 @@ public class StatusHandler extends AbstractHandler {
             return;
         }
 
-        PlayerStatus status = PlayerStatus.get(uniqueID,passed);
-        Utils.server.writeJSONAndSend(httpExchange,200,Utils.gson.toJson(status));
+        PlayerStatus status = PlayerStatus.get(uniqueID, passed);
+        Utils.server.writeJSONAndSend(httpExchange, 200, Utils.gson.toJson(status));
     }
 }

@@ -12,7 +12,7 @@ import java.net.InetAddress;
 public class GetCodeHandler extends AbstractHandler {
     private final VerificationCodeManager verificationCodeManager;
 
-    public GetCodeHandler(int limit, long periodInMilliseconds, HttpServer httpServer, String handlePath, VerificationCodeManager verificationCodeManager) {
+    public GetCodeHandler(long limit, long periodInMilliseconds, HttpServer httpServer, String handlePath, VerificationCodeManager verificationCodeManager) {
         super(limit, periodInMilliseconds, httpServer, handlePath);
         this.verificationCodeManager = verificationCodeManager;
     }

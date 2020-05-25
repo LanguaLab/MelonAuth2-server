@@ -10,47 +10,42 @@ public class APIUsageSettings {
 
     @SerializedName("getCode")
     @Expose
-    private List<Integer> getCode = null;
+    private UsageSetting getCode = null;
     @SerializedName("getStatus")
     @Expose
-    private List<Integer> getStatus = null;
+    private UsageSetting getStatus = null;
+    @SerializedName("getSkin")
+    @Expose
+    private UsageSetting getSkin = null;
     @SerializedName("verify")
     @Expose
-    private List<Integer> verify = null;
+    private UsageSetting verify = null;
 
     public static APIUsageSettings getDefault() {
         return new APIUsageSettings().check();
     }
 
     public APIUsageSettings check() {
-        if (getCode == null || getCode.size() < 2) {
-            getCode = new ArrayList<>();
-            getCode.add(60);
-            getCode.add(60000);
-        }
-        if (getStatus == null || getStatus.size() < 2) {
-            getStatus = new ArrayList<>();
-            getStatus.add(60);
-            getStatus.add(60000);
-        }
-        if (verify == null || verify.size() < 2) {
-            verify = new ArrayList<>();
-            verify.add(1);
-            verify.add(60000);
-        }
+        if (getCode == null) getCode = UsageSetting.get(60,60000);
+        if (getStatus == null) getStatus = UsageSetting.get(60,60000);
+        if (getSkin == null) getSkin = UsageSetting.get(200,60000);
+        if (verify == null) verify = UsageSetting.get(1,60000);
         return this;
     }
 
-
-    public List<Integer> getGetCode() {
-        return new ArrayList<>(getCode);
+    public UsageSetting getGetCode() {
+        return getCode;
     }
 
-    public List<Integer> getVerify() {
-        return new ArrayList<>(verify);
+    public UsageSetting getGetStatus() {
+        return getStatus;
     }
 
-    public List<Integer> getGetStatus() {
-        return new ArrayList<>(getStatus);
+    public UsageSetting getGetSkin() {
+        return getSkin;
+    }
+
+    public UsageSetting getVerify() {
+        return verify;
     }
 }

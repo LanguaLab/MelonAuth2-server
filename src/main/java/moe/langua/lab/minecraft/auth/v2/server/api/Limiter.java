@@ -9,11 +9,11 @@ import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Limiter {
-    private final int LIMIT;
+    private final long LIMIT;
     private final ConcurrentHashMap<InetAddress, Integer> usageRecord = new ConcurrentHashMap<>();
     private long nextReset = 0;
 
-    public Limiter(int limit, long periodInMilliseconds, String handlerHandlePath) {
+    public Limiter(long limit, long periodInMilliseconds, String handlerHandlePath) {
         LIMIT = limit;
         if (limit > 0) {
             new Timer().schedule(new TimerTask() {
