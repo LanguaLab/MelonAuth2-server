@@ -97,6 +97,8 @@ public class Utils {
         connection.setRequestProperty("User-Agent", "curl/7.58.0");
         connection.setRequestProperty("Content-Type", "application/json");
         connection.setInstanceFollowRedirects(false);
+        if (connection.getResponseCode() != 200)
+            throw new IOException("Http GET request to " + connection.getURL().toString() + " returned " + connection.getResponseCode());
         InputStream inputStream = connection.getInputStream();
         InputStreamReader inputStreamReader = new InputStreamReader(inputStream, UTF_8);
         BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
@@ -170,7 +172,7 @@ public class Utils {
         public static final Error NOT_FOUND_ERROR = new Error("Not Found", "The server has not found anything matching the request URI", null);
         public static final Error TOO_MANY_REQUEST_ERROR = new Error("TooManyRequestsException", "The client has sent too many requests within a certain amount of time", null);
         //public static final Error VERIFICATION_EXPIRED_ERROR = new Error("Verification Expired", "Your Verification has been expired, please reconnect to server and get a new verification code", null);
-        public static final Error SERVER_NETWORK_ERROR = new Error("Server Network Error", "Server network communication error, please try again later", null);
+        public static final Error SERVER_NETWORK_ERROR = new Error("Server Network Error", "Server network error, please check your submission and try again later", null);
         public static final Error INTERNAL_ERROR = new Error("Server Internal Error", "Internal error occurred", null);
         //public static final Error BAD_REQUEST = new Error("Bad Request", null, null);
 

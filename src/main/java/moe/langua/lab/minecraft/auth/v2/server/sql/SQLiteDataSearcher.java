@@ -10,7 +10,6 @@ import java.util.UUID;
 
 public class SQLiteDataSearcher implements DataSearcher {
     private final Connection jDBCConnection;
-    private final String TABLE_PREFIX;
     private final PreparedStatement checkPlayerExistenceStatement;
     private final PreparedStatement insertStatement;
     private final PreparedStatement getStatusStatement;
@@ -18,7 +17,6 @@ public class SQLiteDataSearcher implements DataSearcher {
 
     public SQLiteDataSearcher(File dataRoot, String tablePrefix) throws IllegalArgumentException, SQLException {
         Utils.logger.log(LogRecord.Level.INFO, "Initializing SQLite for verification data storage...");
-        TABLE_PREFIX = tablePrefix;
         File dataDirectory = new File(dataRoot.getAbsolutePath() + "/data");
         if (!dataDirectory.mkdir() && !dataDirectory.isDirectory()) {
             throw new IllegalArgumentException(dataDirectory.getAbsolutePath() + " should be a directory, but found a file.");
@@ -27,7 +25,7 @@ public class SQLiteDataSearcher implements DataSearcher {
         String url = "jdbc:sqlite:" + dataBaseFile.getAbsolutePath();
         jDBCConnection = DriverManager.getConnection(url);
         String initializeTable =
-                "CREATE TABLE IF NOT EXISTS " + TABLE_PREFIX + "Verifications (\n" +
+                "CREATE TABLE IF NOT EXISTS " + tablePrefix + "Verifications (\n" +
                         " RecordID INTEGER PRIMARY KEY AUTOINCREMENT,\n" +
                         " UniqueIDMost INTEGER,\n" +
                         " UniqueIDLeast INTEGER,\n" +
@@ -52,18 +50,18 @@ public class SQLiteDataSearcher implements DataSearcher {
         }));//close connection when shutdown the server
 
         checkPlayerExistenceStatement = jDBCConnection.prepareStatement(
-                "SELECT Count(RecordID) AS Count FROM " + TABLE_PREFIX + "Verifications\n" +
+                "SELECT Count(RecordID) AS Count FROM " + tablePrefix + "Verifications\n" +
                         "WHERE UniqueIDMost = ? AND UniqueIDLeast = ?;");
 
         insertStatement = jDBCConnection.prepareStatement(
-                "INSERT INTO " + TABLE_PREFIX + "Verifications(UniqueIDMost,UniqueIDLeast,Status) VALUES(?,?,?);");
+                "INSERT INTO " + tablePrefix + "Verifications(UniqueIDMost,UniqueIDLeast,Status) VALUES(?,?,?);");
 
         getStatusStatement = jDBCConnection.prepareStatement(
-                "SELECT Status FROM " + TABLE_PREFIX + "Verifications " +
+                "SELECT Status FROM " + tablePrefix + "Verifications " +
                         "WHERE UniqueIDMost = ? AND UniqueIDLeast = ?;");
 
         updateStatement = jDBCConnection.prepareStatement(
-                "UPDATE " + TABLE_PREFIX + "Verifications SET Status = ? ,CommitIPAddress = ? ,CommitTime = ? " +
+                "UPDATE " + tablePrefix + "Verifications SET Status = ? ,CommitIPAddress = ? ,CommitTime = ? " +
                         "WHERE UniqueIDMost = ? AND UniqueIDLeast = ?;");
 
         Utils.logger.log(LogRecord.Level.INFO, "SQLite has been loaded.");

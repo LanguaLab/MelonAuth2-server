@@ -12,10 +12,10 @@ import java.net.InetAddress;
 import java.sql.SQLException;
 import java.util.UUID;
 
-public class StatusHandler extends AbstractHandler {
+public class GetStatusHandler extends AbstractHandler {
     private final DataSearcher dataSearcher;
 
-    public StatusHandler(long limit, long periodInMilliseconds, HttpServer httpServer, String handlePath, DataSearcher dataSearcher) {
+    public GetStatusHandler(long limit, long periodInMilliseconds, HttpServer httpServer, String handlePath, DataSearcher dataSearcher) {
         super(limit, periodInMilliseconds, httpServer, handlePath);
         this.dataSearcher = dataSearcher;
     }
