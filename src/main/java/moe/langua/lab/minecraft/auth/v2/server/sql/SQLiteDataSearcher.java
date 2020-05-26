@@ -24,6 +24,8 @@ public class SQLiteDataSearcher implements DataSearcher {
         File dataBaseFile = new File(dataDirectory, "verification.db");
         String url = "jdbc:sqlite:" + dataBaseFile.getAbsolutePath();
         jDBCConnection = DriverManager.getConnection(url);
+        String disableSynchronous = "PRAGMA synchronous = OFF;";
+        String journalModeConfig = "PRAGMA journal_mode = MEMORY;";
         String initializeTable =
                 "CREATE TABLE IF NOT EXISTS " + tablePrefix + "Verifications (\n" +
                         " RecordID INTEGER PRIMARY KEY AUTOINCREMENT,\n" +
@@ -33,10 +35,18 @@ public class SQLiteDataSearcher implements DataSearcher {
                         " CommitIPAddress TEXT,\n" +
                         " CommitTime INTEGER\n" +
                         ");";
+        String initializeIndex =
+                "CREATE INDEX IF NOT EXISTS "+ tablePrefix +"VerificationIndex ON "+ tablePrefix +"Verifications (\n" +
+                "\tUniqueIDMost,\n" +
+                "\tUniqueIDLeast\n" +
+                ");";
 
         {
             Statement statementInstance = jDBCConnection.createStatement();
+            statementInstance.execute(disableSynchronous);
+            statementInstance.execute(journalModeConfig);
             statementInstance.execute(initializeTable);
+            statementInstance.execute(initializeIndex);
             statementInstance.close();
         }
 
@@ -50,7 +60,7 @@ public class SQLiteDataSearcher implements DataSearcher {
         }));//close connection when shutdown the server
 
         checkPlayerExistenceStatement = jDBCConnection.prepareStatement(
-                "SELECT Count(RecordID) AS Count FROM " + tablePrefix + "Verifications\n" +
+                "SELECT Count(Status) AS Count FROM " + tablePrefix + "Verifications\n" +
                         "WHERE UniqueIDMost = ? AND UniqueIDLeast = ?;");
 
         insertStatement = jDBCConnection.prepareStatement(
