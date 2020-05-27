@@ -23,7 +23,7 @@ public class Bootstrap {
         long start = System.currentTimeMillis();
         System.out.println("Loading runtime...");
         Gson prettyGson = new GsonBuilder().setPrettyPrinting().create();
-        File dataRoot = new File("");
+        File dataRoot = new File(new File("").getAbsolutePath());
         File configFile = new File(dataRoot.getAbsolutePath() + "/config.json");
         MainSettings settings;
 
@@ -60,13 +60,13 @@ public class Bootstrap {
         }
 
         Utils.logger.log(LogRecord.Level.INFO, "Initializing SkinServer...");
-        File skinServerRoot = new File(new File(dataRoot.getAbsolutePath()) + "/" + settings.getSkinBase());
+        File skinServerRoot = new File(dataRoot.getAbsolutePath() + "/" + settings.getSkinBase());
 
         SkinServer skinServer = new SkinServer(skinServerRoot, settings.getAPIUrl(), settings.getVerificationExpireTime());
         Runtime.getRuntime().addShutdownHook(new Thread(skinServer::purgeAll));
 
         Utils.logger.log(LogRecord.Level.INFO, "API Starting...");
-        new Server(11014, new SQLiteDataSearcher(dataRoot, MainSettings.instance.getDatabaseSettings().getTablePrefix()), skinServer);
+        new Server(11014, new SQLiteDataSearcher(new File(dataRoot.getAbsolutePath() + "/" + "data")), skinServer);
         Utils.logger.log(LogRecord.Level.INFO, "Done(" + (System.currentTimeMillis() - start) / 1000.0 + "s)! All modules have started.");
     }
 }

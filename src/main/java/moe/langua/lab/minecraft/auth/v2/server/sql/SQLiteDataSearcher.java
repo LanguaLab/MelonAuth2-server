@@ -1,5 +1,6 @@
 package moe.langua.lab.minecraft.auth.v2.server.sql;
 
+import moe.langua.lab.minecraft.auth.v2.server.json.server.settngs.MainSettings;
 import moe.langua.lab.minecraft.auth.v2.server.util.Utils;
 import moe.langua.lab.utils.logger.utils.LogRecord;
 
@@ -15,19 +16,18 @@ public class SQLiteDataSearcher implements DataSearcher {
     private final PreparedStatement getStatusStatement;
     private final PreparedStatement updateStatement;
 
-    public SQLiteDataSearcher(File dataRoot, String tablePrefix) throws IllegalArgumentException, SQLException {
+    public SQLiteDataSearcher(File dataRoot) throws IllegalArgumentException, SQLException {
         Utils.logger.log(LogRecord.Level.INFO, "Initializing SQLite for verification data storage...");
-        File dataDirectory = new File(dataRoot.getAbsolutePath() + "/data");
-        if (!dataDirectory.mkdir() && !dataDirectory.isDirectory()) {
-            throw new IllegalArgumentException(dataDirectory.getAbsolutePath() + " should be a directory, but found a file.");
+        if (!dataRoot.mkdir() && !dataRoot.isDirectory()) {
+            throw new IllegalArgumentException(dataRoot.getAbsolutePath() + " should be a directory, but found a file.");
         }
-        File dataBaseFile = new File(dataDirectory, "verification.db");
+        File dataBaseFile = new File(dataRoot, "verification.db");
         String url = "jdbc:sqlite:" + dataBaseFile.getAbsolutePath();
         jDBCConnection = DriverManager.getConnection(url);
-        String disableSynchronous = "PRAGMA synchronous = OFF;";
-        String journalModeConfig = "PRAGMA journal_mode = MEMORY;";
+        String disableSynchronous = "PRAGMA synchronous = " + MainSettings.instance.getDatabaseSettings().getSqLiteSettings().getSynchronous() + ";";
+        String journalModeConfig = "PRAGMA journal_mode = " + MainSettings.instance.getDatabaseSettings().getSqLiteSettings().getJournalMode() + ";";
         String initializeTable =
-                "CREATE TABLE IF NOT EXISTS " + tablePrefix + "Verifications (\n" +
+                "CREATE TABLE IF NOT EXISTS Verifications (\n" +
                         " RecordID INTEGER PRIMARY KEY AUTOINCREMENT,\n" +
                         " UniqueIDMost INTEGER,\n" +
                         " UniqueIDLeast INTEGER,\n" +
@@ -36,10 +36,10 @@ public class SQLiteDataSearcher implements DataSearcher {
                         " CommitTime INTEGER\n" +
                         ");";
         String initializeIndex =
-                "CREATE INDEX IF NOT EXISTS "+ tablePrefix +"VerificationIndex ON "+ tablePrefix +"Verifications (\n" +
-                "\tUniqueIDMost,\n" +
-                "\tUniqueIDLeast\n" +
-                ");";
+                "CREATE INDEX IF NOT EXISTS VerificationIndex ON Verifications (\n" +
+                        "\tUniqueIDMost,\n" +
+                        "\tUniqueIDLeast\n" +
+                        ");";
 
         {
             Statement statementInstance = jDBCConnection.createStatement();
@@ -60,18 +60,18 @@ public class SQLiteDataSearcher implements DataSearcher {
         }));//close connection when shutdown the server
 
         checkPlayerExistenceStatement = jDBCConnection.prepareStatement(
-                "SELECT Count(Status) AS Count FROM " + tablePrefix + "Verifications\n" +
+                "SELECT Count(Status) AS Count FROM Verifications\n" +
                         "WHERE UniqueIDMost = ? AND UniqueIDLeast = ?;");
 
         insertStatement = jDBCConnection.prepareStatement(
-                "INSERT INTO " + tablePrefix + "Verifications(UniqueIDMost,UniqueIDLeast,Status) VALUES(?,?,?);");
+                "INSERT INTO Verifications(UniqueIDMost,UniqueIDLeast,Status) VALUES(?,?,?);");
 
         getStatusStatement = jDBCConnection.prepareStatement(
-                "SELECT Status FROM " + tablePrefix + "Verifications " +
+                "SELECT Status FROM Verifications " +
                         "WHERE UniqueIDMost = ? AND UniqueIDLeast = ?;");
 
         updateStatement = jDBCConnection.prepareStatement(
-                "UPDATE " + tablePrefix + "Verifications SET Status = ? ,CommitIPAddress = ? ,CommitTime = ? " +
+                "UPDATE Verifications SET Status = ? ,CommitIPAddress = ? ,CommitTime = ? " +
                         "WHERE UniqueIDMost = ? AND UniqueIDLeast = ?;");
 
         Utils.logger.log(LogRecord.Level.INFO, "SQLite has been loaded.");

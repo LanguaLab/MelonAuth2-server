@@ -2,72 +2,45 @@ package moe.langua.lab.minecraft.auth.v2.server.json.server.settngs;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import moe.langua.lab.minecraft.auth.v2.server.json.server.settngs.sql.MySQLSettings;
+import moe.langua.lab.minecraft.auth.v2.server.json.server.settngs.sql.SQLiteSettings;
 import moe.langua.lab.minecraft.auth.v2.server.util.Utils;
 
 public class DatabaseSettings {
 
-    @SerializedName("tablePrefix")
+    @SerializedName("type")
     @Expose
-    private String tablePrefix;
-    @SerializedName("useMySQL")
+    private String type;
+    @SerializedName("sQLiteSettings")
     @Expose
-    private Boolean useMySQL;
-    @SerializedName("mysqlHost")
+    private SQLiteSettings sqLiteSettings = null;
+    @SerializedName("mySQLSettings")
     @Expose
-    private String mysqlHost;
-    @SerializedName("mysqlPort")
-    @Expose
-    private Integer mysqlPort;
-    @SerializedName("mysqlDatabase")
-    @Expose
-    private String mysqlDatabase;
-    @SerializedName("mysqlUsername")
-    @Expose
-    private String mysqlUsername;
-    @SerializedName("mysqlPassword")
-    @Expose
-    private String mysqlPassword;
+    private MySQLSettings mySQLSettings = null;
+
 
     public static DatabaseSettings getDefault() {
         return new DatabaseSettings().check();
     }
 
     public DatabaseSettings check() {
-        if (tablePrefix == null) tablePrefix = "AuthV2_";
-        if (useMySQL == null) useMySQL = false;
-        if (mysqlHost == null) mysqlHost = "127.0.0.1";
-        if (mysqlPort == null) mysqlPort = 3306;
-        if (mysqlDatabase == null) mysqlDatabase = "databaseName";
-        if (mysqlUsername == null) mysqlUsername = "authv2";
-        if (mysqlPassword == null) mysqlPassword = Utils.getRandomString(10);
+        if (type == null) type = "SQLite";
+        if(sqLiteSettings==null) sqLiteSettings = SQLiteSettings.getDefault();
+        if(mySQLSettings==null) mySQLSettings = MySQLSettings.getDefault();
+        sqLiteSettings.check();
+        mySQLSettings.check();
         return this;
     }
 
-    public String getTablePrefix() {
-        return tablePrefix;
+    public String getSQLType() {
+        return type;
     }
 
-    public Boolean getUseMySQL() {
-        return useMySQL;
+    public SQLiteSettings getSqLiteSettings() {
+        return sqLiteSettings;
     }
 
-    public String getMysqlHost() {
-        return mysqlHost;
-    }
-
-    public Integer getMysqlPort() {
-        return mysqlPort;
-    }
-
-    public String getMysqlDatabase() {
-        return mysqlDatabase;
-    }
-
-    public String getMysqlUsername() {
-        return mysqlUsername;
-    }
-
-    public String getMysqlPassword() {
-        return mysqlPassword;
+    public MySQLSettings getMySQLSettings() {
+        return mySQLSettings;
     }
 }
