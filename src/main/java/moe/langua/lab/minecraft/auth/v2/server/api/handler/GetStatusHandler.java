@@ -41,21 +41,14 @@ public class GetStatusHandler extends AbstractHandler {
             return;
         }
 
-        if (uniqueID.getLeastSignificantBits() == 0 && uniqueID.getMostSignificantBits() == 0) {
-            Utils.server.returnNoContent(httpExchange, 204);
-            return;
-        }
-
-        boolean passed;
+        PlayerStatus status;
         try {
-            passed = dataSearcher.getPlayerStatus(uniqueID);
+            status = dataSearcher.getPlayerStatus(uniqueID);
         } catch (SQLException e) {
             Utils.logger.log(LogRecord.Level.ERROR, e.toString());
             Utils.server.errorReturn(httpExchange, 500, Utils.server.INTERNAL_ERROR);
             return;
         }
-
-        PlayerStatus status = PlayerStatus.get(uniqueID, passed);
         Utils.server.writeJSONAndSend(httpExchange, 200, Utils.gson.toJson(status));
     }
 }

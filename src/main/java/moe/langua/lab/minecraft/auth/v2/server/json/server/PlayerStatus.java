@@ -12,11 +12,15 @@ public class PlayerStatus {
     @SerializedName("verified")
     @Expose
     private Boolean verified;
+    @SerializedName("commitTime")
+    @Expose
+    private Long commitTime;
 
-    public static PlayerStatus get(UUID uniqueID, boolean verified) {
+    public static PlayerStatus get(UUID uniqueID, boolean verified, Long commitTime) {
         PlayerStatus statusInstance = new PlayerStatus();
         statusInstance.uniqueID = uniqueID.toString();
         statusInstance.verified = verified;
+        statusInstance.commitTime = commitTime;
         return statusInstance;
     }
 
@@ -26,6 +30,10 @@ public class PlayerStatus {
 
     public Boolean getVerified() {
         return verified;
+    }
+
+    public long getCommitTime(){
+        return commitTime;
     }
 
 }

@@ -1,5 +1,6 @@
 package moe.langua.lab.minecraft.auth.v2.server.sql;
 
+import moe.langua.lab.minecraft.auth.v2.server.json.server.PlayerStatus;
 import moe.langua.lab.minecraft.auth.v2.server.json.server.settngs.MainSettings;
 import moe.langua.lab.minecraft.auth.v2.server.util.Utils;
 import moe.langua.lab.utils.logger.utils.LogRecord;
@@ -67,7 +68,7 @@ public class SQLiteDataSearcher implements DataSearcher {
                 "INSERT INTO Verifications(UniqueIDMost,UniqueIDLeast,Status) VALUES(?,?,?);");
 
         getStatusStatement = jDBCConnection.prepareStatement(
-                "SELECT Status FROM Verifications " +
+                "SELECT Status,CommitTime FROM Verifications " +
                         "WHERE UniqueIDMost = ? AND UniqueIDLeast = ?;");
 
         updateStatement = jDBCConnection.prepareStatement(
@@ -78,7 +79,7 @@ public class SQLiteDataSearcher implements DataSearcher {
     }
 
     @Override
-    public synchronized boolean getPlayerStatus(UUID uniqueID) throws SQLException {
+    public synchronized PlayerStatus getPlayerStatus(UUID uniqueID) throws SQLException {
         checkPlayerExistenceStatement.setLong(1, uniqueID.getMostSignificantBits());
         checkPlayerExistenceStatement.setLong(2, uniqueID.getLeastSignificantBits());
         ResultSet resultSet = checkPlayerExistenceStatement.executeQuery();
@@ -89,13 +90,13 @@ public class SQLiteDataSearcher implements DataSearcher {
             insertStatement.setLong(2, uniqueID.getLeastSignificantBits());
             insertStatement.setBoolean(3, false);
             insertStatement.executeUpdate();
-            return false;
+            return PlayerStatus.get(uniqueID,false,null);
         } else {
             //lookup status and return
             getStatusStatement.setLong(1, uniqueID.getMostSignificantBits());
             getStatusStatement.setLong(2, uniqueID.getLeastSignificantBits());
             ResultSet statusResultSet = getStatusStatement.executeQuery();
-            return statusResultSet.getBoolean("Status");
+            return PlayerStatus.get(uniqueID,statusResultSet.getBoolean("Status"),statusResultSet.getLong("CommitTime"));
         }
     }
 

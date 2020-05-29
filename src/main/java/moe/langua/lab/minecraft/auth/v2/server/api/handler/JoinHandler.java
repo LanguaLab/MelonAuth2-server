@@ -3,6 +3,7 @@ package moe.langua.lab.minecraft.auth.v2.server.api.handler;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import moe.langua.lab.minecraft.auth.v2.server.json.mojang.Profile;
+import moe.langua.lab.minecraft.auth.v2.server.json.server.PlayerStatus;
 import moe.langua.lab.minecraft.auth.v2.server.json.server.VerificationNotice;
 import moe.langua.lab.minecraft.auth.v2.server.json.server.settngs.MainSettings;
 import moe.langua.lab.minecraft.auth.v2.server.sql.DataSearcher;
@@ -75,15 +76,15 @@ public class JoinHandler extends AbstractHandler {
             return;
         }
 
-        boolean passed;
+        PlayerStatus status;
         try {
-            passed = dataSearcher.getPlayerStatus(uniqueID);
+            status = dataSearcher.getPlayerStatus(uniqueID);
         } catch (SQLException e) {
             Utils.logger.log(LogRecord.Level.ERROR, e.toString());
             Utils.server.errorReturn(httpExchange, 500, Utils.server.INTERNAL_ERROR);
             return;
         }
-        if (!passed) {// block
+        if (!status.getVerified()) {// block
             if (!verificationCodeManager.hasVerification(uniqueID) || verificationCodeManager.getVerification(uniqueID).getExpireTime() - System.currentTimeMillis() < MainSettings.instance.getVerificationRegenTime()/*has no existing verification OR exist verification remains less than regen time*/) {
                 verificationCodeManager.removeVerification(uniqueID);
                 //create new verification
