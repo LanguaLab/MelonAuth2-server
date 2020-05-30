@@ -10,13 +10,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Limiter {
     private final long LIMIT;
-    private final ConcurrentHashMap<InetAddress, Integer> usageRecord = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<InetAddress, Long> usageRecord = new ConcurrentHashMap<>();
     private long nextReset = 0;
 
     public Limiter(long limit, long periodInMilliseconds, String handlerHandlePath) {
         LIMIT = limit;
         if (limit > 0) {
-            new Timer().schedule(new TimerTask() {
+            new Timer().scheduleAtFixedRate(new TimerTask() {
                 @Override
                 public void run() {
                     usageRecord.keySet().forEach((address) -> {
@@ -34,13 +34,17 @@ public class Limiter {
 
     public boolean getUsability(InetAddress address) {
         if (LIMIT < 0) return true;
-        if (!usageRecord.containsKey(address)) usageRecord.put(address, 0);
+        if (!usageRecord.containsKey(address)) usageRecord.put(address, 0L);
         return usageRecord.get(address) < LIMIT;
     }
 
-    public void add(InetAddress address, int delta) {
-        if (!usageRecord.containsKey(address)) usageRecord.put(address, 0);
+    public void add(InetAddress address, long delta) {
+        if (!usageRecord.containsKey(address)) usageRecord.put(address, 0L);
         usageRecord.put(address, usageRecord.get(address) + delta);
+    }
+
+    public long getLIMIT(){
+        return LIMIT;
     }
 
     public long getNextReset() {

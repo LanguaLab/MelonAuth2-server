@@ -6,6 +6,7 @@ import moe.langua.lab.minecraft.auth.v2.server.json.mojang.PlayerProfile;
 import moe.langua.lab.minecraft.auth.v2.server.json.mojang.Profile;
 import moe.langua.lab.minecraft.auth.v2.server.json.mojang.Property;
 import moe.langua.lab.minecraft.auth.v2.server.json.server.Error;
+import moe.langua.lab.security.otp.MelonTOTP;
 import moe.langua.lab.utils.logger.MelonLogger;
 
 import javax.imageio.ImageIO;
@@ -16,7 +17,6 @@ import java.net.URI;
 import java.net.URL;
 import java.security.SecureRandom;
 import java.util.Base64;
-import java.util.Random;
 import java.util.UUID;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -25,7 +25,7 @@ public class Utils {
     public static final int[] colorTable = {0xff032230, 0xff053248, 0xff07435f, 0xff085477, 0xff0a658f, 0xff0c76a7, 0xff0d87bf, 0xff11a8ee, 0xff40baf2, 0xff70cbf5, 0xff88d4f7, 0xffa0dcf8, 0xffb7e5fa, 0xffcfeefc, 0xffe7f6fd, 0xffffffff};
     public static final Gson gson = new Gson();
     public static final MelonLogger logger = MelonLogger.getLogger();
-    private static final Random random = new Random();
+    public static MelonTOTP otpServer;
     private static final char[] charSets = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".toCharArray();
     private static BufferedImage STEVE;
     private static BufferedImage ALEX;
@@ -126,6 +126,7 @@ public class Utils {
     }
 
     public static int[] generateRandomVerificationCodeArray() {
+        SecureRandom random = new SecureRandom();
         int[] result = new int[64];
         for (int index = 0; index < result.length; index++) {
             result[index] = random.nextInt(16);

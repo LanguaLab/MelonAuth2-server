@@ -61,8 +61,8 @@ public class MainSettings {
 
     public MainSettings check() {
         if (clientKey == null) clientKey = Utils.getRandomString(64);
-        if (queueKey == null) queueKey = Utils.getRandomString(16);
-        if (proxyKey == null) proxyKey = Utils.getRandomString(16);
+        if (queueKey == null) queueKey = Utils.getRandomString(24);
+        if (proxyKey == null) proxyKey = Utils.getRandomString(24);
         if (aPIUrl == null) aPIUrl = "http://127.0.0.1:11014";
         aPIUrl = Utils.removeSlashAtTheEnd(aPIUrl);
         if (CORSList == null) CORSList = new ArrayList<>();

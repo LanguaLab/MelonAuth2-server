@@ -11,25 +11,20 @@ import moe.langua.lab.minecraft.auth.v2.server.util.SkinServer;
 import moe.langua.lab.minecraft.auth.v2.server.util.Utils;
 import moe.langua.lab.minecraft.auth.v2.server.util.Verification;
 import moe.langua.lab.minecraft.auth.v2.server.util.VerificationCodeManager;
-import moe.langua.lab.security.otp.MelonTOTP;
 import moe.langua.lab.utils.logger.utils.LogRecord;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.UUID;
 
 public class JoinHandler extends AbstractHandler {
-    private static final long TRUNCATE_VALUE = 0x100000000L;
-    private static final long OTP_EXPIRATION = 30000;
 
     private final DataSearcher dataSearcher;
     private final VerificationCodeManager verificationCodeManager;
     private final SkinServer skinServer;
-    private final MelonTOTP oTPServer;
 
 
     public JoinHandler(long limit, long periodInMilliseconds, HttpServer httpServer, String handlePath, DataSearcher dataSearcher, VerificationCodeManager verificationCodeManager, SkinServer skinServer) {
@@ -37,26 +32,22 @@ public class JoinHandler extends AbstractHandler {
         this.dataSearcher = dataSearcher;
         this.verificationCodeManager = verificationCodeManager;
         this.skinServer = skinServer;
-        this.oTPServer = new MelonTOTP(MainSettings.instance.getClientKey().getBytes(StandardCharsets.UTF_8), TRUNCATE_VALUE, OTP_EXPIRATION);
     }
 
     @Override
     public void process(HttpExchange httpExchange, InetAddress requestAddress) {
         if (!httpExchange.getRequestHeaders().containsKey("Authorization")) {
-            httpExchange.getResponseHeaders().set("WWW-Authenticate", oTPServer.getOTPConfig());
+            httpExchange.getResponseHeaders().set("WWW-Authenticate", Utils.otpServer.getOTPConfig());
             Utils.server.returnNoContent(httpExchange, 401);
             getLimiter().add(requestAddress, 1);
             return;
         } else {
-            long passCode;
-            try {
-                passCode = Long.parseLong(httpExchange.getRequestHeaders().getFirst("Authorization"), 16);
-            } catch (NumberFormatException e) {
-                Utils.server.returnNoContent(httpExchange, 403);
-                getLimiter().add(requestAddress, 1);
-                return;
+            String[] pass = httpExchange.getRequestHeaders().getFirst("Authorization").split(" ");
+            boolean passed = false;
+            if (pass.length > 2) {
+                passed = pass[0].equalsIgnoreCase("MelonOTP") && Utils.otpServer.verify(pass[1]);
             }
-            if (!oTPServer.verify(passCode)) {
+            if (!passed) {
                 Utils.server.returnNoContent(httpExchange, 403);
                 getLimiter().add(requestAddress, 1);
                 return;

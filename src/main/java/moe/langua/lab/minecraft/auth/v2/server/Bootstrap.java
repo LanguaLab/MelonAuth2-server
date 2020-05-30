@@ -7,6 +7,7 @@ import moe.langua.lab.minecraft.auth.v2.server.json.server.settngs.MainSettings;
 import moe.langua.lab.minecraft.auth.v2.server.sql.SQLiteDataSearcher;
 import moe.langua.lab.minecraft.auth.v2.server.util.SkinServer;
 import moe.langua.lab.minecraft.auth.v2.server.util.Utils;
+import moe.langua.lab.security.otp.MelonTOTP;
 import moe.langua.lab.utils.logger.handler.ConsoleLogHandler;
 import moe.langua.lab.utils.logger.handler.DailyRollingFileLogHandler;
 import moe.langua.lab.utils.logger.utils.LogRecord;
@@ -15,9 +16,12 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 
 public class Bootstrap {
+    private static final long TRUNCATE_VALUE = 0x100000000L;
+    private static final long OTP_EXPIRATION = 30000;
 
     public static void main(String... args) throws SQLException, IOException {
         long start = System.currentTimeMillis();
@@ -41,6 +45,7 @@ public class Bootstrap {
         writer.close();
 
         MainSettings.instance = settings;
+        Utils.otpServer = new MelonTOTP(MainSettings.instance.getClientKey().getBytes(StandardCharsets.UTF_8), TRUNCATE_VALUE, OTP_EXPIRATION);
         Utils.logger.addHandler(new ConsoleLogHandler(LogRecord.Level.getFromName(settings.getMinimumLogRecordLevel())));
 
         File logFolder = new File(dataRoot.getAbsolutePath() + "/logs");
