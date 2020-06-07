@@ -24,8 +24,9 @@ public class GetStatusHandler extends AbstractHandler {
     public void process(HttpExchange httpExchange, InetAddress requestAddress) {
         if (!httpExchange.getRequestHeaders().containsKey("Authorization")) {
             getLimiter().add(requestAddress, 1);
-            httpExchange.getResponseHeaders().set("WWW-Authenticate", "Password");
+            httpExchange.getResponseHeaders().set("WWW-Authenticate", "Password | "+Utils.otpServer.getOTPConfig());
             Utils.server.returnNoContent(httpExchange, 401);
+            return;
         } else {
             String[] pass = httpExchange.getRequestHeaders().getFirst("Authorization").split(" ");
             boolean passed = false;

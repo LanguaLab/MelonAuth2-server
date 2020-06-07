@@ -2,6 +2,7 @@ package moe.langua.lab.minecraft.auth.v2.server.api.handler;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
+import moe.langua.lab.minecraft.auth.v2.server.api.Limiter;
 import moe.langua.lab.minecraft.auth.v2.server.json.server.Message;
 import moe.langua.lab.minecraft.auth.v2.server.sql.DataSearcher;
 import moe.langua.lab.minecraft.auth.v2.server.util.Utils;
@@ -20,6 +21,7 @@ import static moe.langua.lab.minecraft.auth.v2.server.util.Utils.server.SERVER_N
 public class VerifyHandler extends AbstractHandler {
     private final VerificationCodeManager verificationCodeManager;
     private final DataSearcher dataSearcher;
+    private final Limiter uuidLimiter = new Limiter(1,60000,"/verify/");
 
     public VerifyHandler(long limit, long resetPeriod, HttpServer httpServer, String handlePath, DataSearcher dataSearcher, VerificationCodeManager verificationCodeManager) {
         super(limit, resetPeriod, httpServer, handlePath);
@@ -45,6 +47,10 @@ public class VerifyHandler extends AbstractHandler {
 
         BufferedImage skin;
         UUID playerUniqueID = verificationCodeManager.getVerification(verificationCode).getUniqueID();
+        if (!uuidLimiter.getUsability(playerUniqueID)){
+            Utils.server.errorReturn(httpExchange,429,Utils.server.TOO_MANY_REQUEST_ERROR.clone().setErrorMessage("only the first request will be proceed each minute per uuid").setExtra(""+(uuidLimiter.getNextReset()-System.currentTimeMillis())));
+        }
+        uuidLimiter.add(playerUniqueID,1);
         try {
             skin = Utils.getSkin(playerUniqueID);
         } catch (IOException e) {

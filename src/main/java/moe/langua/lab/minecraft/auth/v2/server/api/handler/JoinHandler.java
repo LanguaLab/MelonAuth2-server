@@ -44,8 +44,9 @@ public class JoinHandler extends AbstractHandler {
         } else {
             String[] pass = httpExchange.getRequestHeaders().getFirst("Authorization").split(" ");
             boolean passed = false;
-            if (pass.length > 2) {
-                passed = pass[0].equalsIgnoreCase("MelonOTP") && Utils.otpServer.verify(pass[1]);
+            if (pass.length >= 2) {
+                passed = pass[0].equalsIgnoreCase("MelonOTP") && Utils.otpServer.verify(pass[1],16);
+                System.out.println(pass[0]+" "+pass[1]);
             }
             if (!passed) {
                 Utils.server.returnNoContent(httpExchange, 403);

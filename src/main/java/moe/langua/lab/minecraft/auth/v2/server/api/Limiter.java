@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Limiter {
     private final long LIMIT;
-    private final ConcurrentHashMap<InetAddress, Long> usageRecord = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Object, Long> usageRecord = new ConcurrentHashMap<>();
     private long nextReset = 0;
 
     public Limiter(long limit, long periodInMilliseconds, String handlerHandlePath) {
@@ -19,10 +19,10 @@ public class Limiter {
             new Timer().scheduleAtFixedRate(new TimerTask() {
                 @Override
                 public void run() {
-                    usageRecord.keySet().forEach((address) -> {
-                        long times = usageRecord.get(address);
+                    usageRecord.keySet().forEach((target) -> {
+                        long times = usageRecord.get(target);
                         if (times > 10 && times > limit * 2) {
-                            Utils.logger.log(LogRecord.Level.WARN, address.toString() + " tried to get " + handlerHandlePath + " for " + times + " times with in the last usage reset circle (" + periodInMilliseconds / 1000.0 + " seconds).");
+                            Utils.logger.log(LogRecord.Level.WARN, target.toString() + " tried to get " + handlerHandlePath + " for " + times + " times with in the last usage reset circle (" + periodInMilliseconds / 1000.0 + " seconds).");
                         }
                     });
                     usageRecord.clear();
@@ -32,15 +32,15 @@ public class Limiter {
         }
     }
 
-    public boolean getUsability(InetAddress address) {
+    public boolean getUsability(Object target) {
         if (LIMIT < 0) return true;
-        if (!usageRecord.containsKey(address)) usageRecord.put(address, 0L);
-        return usageRecord.get(address) < LIMIT;
+        if (!usageRecord.containsKey(target)) usageRecord.put(target, 0L);
+        return usageRecord.get(target) < LIMIT;
     }
 
-    public void add(InetAddress address, long delta) {
-        if (!usageRecord.containsKey(address)) usageRecord.put(address, 0L);
-        usageRecord.put(address, usageRecord.get(address) + delta);
+    public void add(Object target, long delta) {
+        if (!usageRecord.containsKey(target)) usageRecord.put(target, 0L);
+        usageRecord.put(target, usageRecord.get(target) + delta);
     }
 
     public long getLIMIT(){

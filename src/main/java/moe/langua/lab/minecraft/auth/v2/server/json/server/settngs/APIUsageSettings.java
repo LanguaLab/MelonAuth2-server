@@ -23,10 +23,14 @@ public class APIUsageSettings {
     }
 
     public APIUsageSettings check() {
-        if (getCode == null) getCode = UsageSetting.get(60, 60000);
-        if (getStatus == null) getStatus = UsageSetting.get(60, 60000);
+        if (getCode == null) getCode = UsageSetting.get(40, 60000);
+        if (getStatus == null) getStatus = UsageSetting.get(40, 60000);
         if (getSkin == null) getSkin = UsageSetting.get(200, 60000);
-        if (verify == null) verify = UsageSetting.get(1, 60000);
+        if (verify == null) verify = UsageSetting.get(40, 60000);
+        getCode.check(40,60000);
+        getStatus.check(40,60000);
+        getSkin.check(200,60000);
+        verify.check(40,60000);
         return this;
     }
 
