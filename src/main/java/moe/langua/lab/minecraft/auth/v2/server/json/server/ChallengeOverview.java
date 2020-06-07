@@ -3,25 +3,25 @@ package moe.langua.lab.minecraft.auth.v2.server.json.server;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class VerificationNotice {
+public class ChallengeOverview {
 
-    @SerializedName("verificationCode")
+    @SerializedName("challengeID")
     @Expose
-    private int verificationCode;
+    private int challengeID;
     @SerializedName("expireIn")
     @Expose
     private Long expireIn;
 
-    public VerificationNotice(int verificationCode, Long expireIn) {
-        this.verificationCode = verificationCode;
+    public ChallengeOverview(int challengeID, Long expireIn) {
+        this.challengeID = challengeID;
         this.expireIn = expireIn;
     }
 
-    public VerificationNotice() {
+    public ChallengeOverview() {
     }
 
-    public int getVerificationCode() {
-        return verificationCode;
+    public int getChallengeID() {
+        return challengeID;
     }
 
     public Long getExpireIn() {

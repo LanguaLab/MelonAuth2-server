@@ -5,7 +5,7 @@ import java.net.URL;
 import java.util.Random;
 import java.util.UUID;
 
-public class Verification {
+public class Challenge {
     static private final Random random = new Random();
 
     private final UUID uniqueID;
@@ -15,7 +15,7 @@ public class Verification {
     private final long expireTime;
     private final URL skinURL;
 
-    public Verification(UUID uniqueID, String playerName, String skinModel, int[] verificationCode, long expireTime, URL skinURL) {
+    public Challenge(UUID uniqueID, String playerName, String skinModel, int[] verificationCode, long expireTime, URL skinURL) {
         this.uniqueID = uniqueID;
         this.playerName = playerName;
         this.skinModel = skinModel;

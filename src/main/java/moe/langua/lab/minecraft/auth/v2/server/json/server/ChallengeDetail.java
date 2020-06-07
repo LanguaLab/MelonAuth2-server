@@ -2,9 +2,9 @@ package moe.langua.lab.minecraft.auth.v2.server.json.server;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import moe.langua.lab.minecraft.auth.v2.server.util.Verification;
+import moe.langua.lab.minecraft.auth.v2.server.util.Challenge;
 
-public class VerificationCodeDetail {
+public class ChallengeDetail {
 
     @SerializedName("uuid")
     @Expose
@@ -22,18 +22,18 @@ public class VerificationCodeDetail {
     @Expose
     public String skinModel;
 
-    public VerificationCodeDetail() {
+    public ChallengeDetail() {
     }
 
-    public VerificationCodeDetail(Verification verification) {
-        this.uuid = verification.getUniqueID().toString();
-        this.name = verification.getPlayerName();
-        this.expireIn = verification.getExpireTime() - System.currentTimeMillis();
-        this.url = verification.getSkinURL().toString();
-        this.skinModel = verification.getSkinModel();
+    public ChallengeDetail(Challenge challenge) {
+        this.uuid = challenge.getUniqueID().toString();
+        this.name = challenge.getPlayerName();
+        this.expireIn = challenge.getExpireTime() - System.currentTimeMillis();
+        this.url = challenge.getSkinURL().toString();
+        this.skinModel = challenge.getSkinModel();
     }
 
-    public VerificationCodeDetail(String uuid, String name, Long expireIn, String url, String skinModel) {
+    public ChallengeDetail(String uuid, String name, Long expireIn, String url, String skinModel) {
         this.uuid = uuid;
         this.name = name;
         this.expireIn = expireIn;

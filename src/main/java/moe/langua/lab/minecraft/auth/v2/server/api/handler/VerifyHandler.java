@@ -6,7 +6,7 @@ import moe.langua.lab.minecraft.auth.v2.server.api.Limiter;
 import moe.langua.lab.minecraft.auth.v2.server.json.server.Message;
 import moe.langua.lab.minecraft.auth.v2.server.sql.DataSearcher;
 import moe.langua.lab.minecraft.auth.v2.server.util.Utils;
-import moe.langua.lab.minecraft.auth.v2.server.util.VerificationCodeManager;
+import moe.langua.lab.minecraft.auth.v2.server.util.ChallengeManager;
 import moe.langua.lab.utils.logger.utils.LogRecord;
 
 import java.awt.image.BufferedImage;
@@ -19,14 +19,14 @@ import static moe.langua.lab.minecraft.auth.v2.server.util.Utils.server.INTERNAL
 import static moe.langua.lab.minecraft.auth.v2.server.util.Utils.server.SERVER_NETWORK_ERROR;
 
 public class VerifyHandler extends AbstractHandler {
-    private final VerificationCodeManager verificationCodeManager;
+    private final ChallengeManager challengeManager;
     private final DataSearcher dataSearcher;
     private final Limiter uuidLimiter = new Limiter(1,60000,"/verify/");
 
-    public VerifyHandler(long limit, long resetPeriod, HttpServer httpServer, String handlePath, DataSearcher dataSearcher, VerificationCodeManager verificationCodeManager) {
+    public VerifyHandler(long limit, long resetPeriod, HttpServer httpServer, String handlePath, DataSearcher dataSearcher, ChallengeManager challengeManager) {
         super(limit, resetPeriod, httpServer, handlePath);
         this.dataSearcher = dataSearcher;
-        this.verificationCodeManager = verificationCodeManager;
+        this.challengeManager = challengeManager;
     }
 
     @Override
@@ -38,15 +38,15 @@ public class VerifyHandler extends AbstractHandler {
         } catch (NumberFormatException e) {
             return;
         }
-        if (!verificationCodeManager.hasVerification(verificationCode)) {
+        if (!challengeManager.hasChallenge(verificationCode)) {
             return;
-        } else if (verificationCodeManager.getVerification(verificationCode).isExpired()) {
-            verificationCodeManager.removeVerification(verificationCode);
+        } else if (challengeManager.getChallenge(verificationCode).isExpired()) {
+            challengeManager.removeChallenge(verificationCode);
             return;
         }
 
         BufferedImage skin;
-        UUID playerUniqueID = verificationCodeManager.getVerification(verificationCode).getUniqueID();
+        UUID playerUniqueID = challengeManager.getChallenge(verificationCode).getUniqueID();
         if (!uuidLimiter.getUsability(playerUniqueID)){
             Utils.server.errorReturn(httpExchange,429,Utils.server.TOO_MANY_REQUEST_ERROR.clone().setErrorMessage("only the first request will be proceed each minute per uuid").setExtra(""+(uuidLimiter.getNextReset()-System.currentTimeMillis())));
         }
@@ -58,17 +58,17 @@ public class VerifyHandler extends AbstractHandler {
             Utils.server.errorReturn(httpExchange, 500, SERVER_NETWORK_ERROR);
             return;
         }
-        if (verificationCodeManager.getVerification(verificationCode).verify(skin)) {
+        if (challengeManager.getChallenge(verificationCode).verify(skin)) {
             //success
             try {
                 dataSearcher.setPlayerStatus(playerUniqueID, true, requestAddress);
                 Utils.server.writeJSONAndSend(httpExchange, 200, Utils.gson.toJson(Message.getFromString("Your account has been verified successfully")));
-                Utils.logger.log(LogRecord.Level.INFO, verificationCodeManager.getVerification(verificationCode).getPlayerName() + " (" + verificationCodeManager.getVerification(verificationCode).getUniqueID().toString() + ") has completed verification challenge.");
+                Utils.logger.log(LogRecord.Level.INFO, challengeManager.getChallenge(verificationCode).getPlayerName() + " (" + challengeManager.getChallenge(verificationCode).getUniqueID().toString() + ") has completed verification challenge.");
             } catch (SQLException e) {
                 Utils.logger.log(LogRecord.Level.ERROR, e.toString());
                 Utils.server.errorReturn(httpExchange, 500, INTERNAL_ERROR);
             } finally {
-                verificationCodeManager.removeVerification(verificationCode);
+                challengeManager.removeChallenge(verificationCode);
             }
         } else {
             //failed

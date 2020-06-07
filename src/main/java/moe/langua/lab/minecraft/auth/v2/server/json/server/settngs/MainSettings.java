@@ -32,12 +32,12 @@ public class MainSettings {
     @SerializedName("skinBase")
     @Expose
     private String skinBase;
-    @SerializedName("verificationExpireTime")
+    @SerializedName("challengeLife")
     @Expose
-    private Long verificationExpireTime;
-    @SerializedName("verificationRegenTime")
+    private Long challengeLife;
+    @SerializedName("challengeRegen")
     @Expose
-    private Long verificationRegenTime;
+    private Long challengeRegen;
     @SerializedName("APIUsageSettings")
     @Expose
     private APIUsageSettings APIUsageSettings;
@@ -73,9 +73,9 @@ public class MainSettings {
         if (skinBase == null) skinBase = "./skins";
         if (APIUsageSettings == null)
             APIUsageSettings = moe.langua.lab.minecraft.auth.v2.server.json.server.settngs.APIUsageSettings.getDefault();
-        if (verificationExpireTime == null) verificationExpireTime = 1800000L;
-        if (verificationRegenTime == null) verificationRegenTime = 900000L;
-        if (verificationExpireTime < verificationRegenTime) verificationRegenTime = verificationExpireTime;
+        if (challengeLife == null) challengeLife = 1800000L;
+        if (challengeRegen == null) challengeRegen = 900000L;
+        if (challengeLife < challengeRegen) challengeRegen = challengeLife;
         if (clientAuthenticationFailed == null) clientAuthenticationFailed = UsageSetting.get(1, 60000);
         if (minimumLogRecordLevel == null || LogRecord.Level.getFromName(minimumLogRecordLevel) == null)
             minimumLogRecordLevel = "fine";
@@ -116,12 +116,12 @@ public class MainSettings {
         return skinBase;
     }
 
-    public Long getVerificationExpireTime() {
-        return verificationExpireTime;
+    public Long getChallengeLife() {
+        return challengeLife;
     }
 
-    public Long getVerificationRegenTime() {
-        return verificationRegenTime;
+    public Long getChallengeRegen() {
+        return challengeRegen;
     }
 
     public APIUsageSettings getAPIUsageSettings() {

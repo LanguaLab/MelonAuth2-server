@@ -4,13 +4,13 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import moe.langua.lab.minecraft.auth.v2.server.json.mojang.Profile;
 import moe.langua.lab.minecraft.auth.v2.server.json.server.PlayerStatus;
-import moe.langua.lab.minecraft.auth.v2.server.json.server.VerificationNotice;
+import moe.langua.lab.minecraft.auth.v2.server.json.server.ChallengeOverview;
 import moe.langua.lab.minecraft.auth.v2.server.json.server.settngs.MainSettings;
 import moe.langua.lab.minecraft.auth.v2.server.sql.DataSearcher;
 import moe.langua.lab.minecraft.auth.v2.server.util.SkinServer;
 import moe.langua.lab.minecraft.auth.v2.server.util.Utils;
-import moe.langua.lab.minecraft.auth.v2.server.util.Verification;
-import moe.langua.lab.minecraft.auth.v2.server.util.VerificationCodeManager;
+import moe.langua.lab.minecraft.auth.v2.server.util.Challenge;
+import moe.langua.lab.minecraft.auth.v2.server.util.ChallengeManager;
 import moe.langua.lab.utils.logger.utils.LogRecord;
 
 import java.awt.image.BufferedImage;
@@ -23,14 +23,14 @@ import java.util.UUID;
 public class JoinHandler extends AbstractHandler {
 
     private final DataSearcher dataSearcher;
-    private final VerificationCodeManager verificationCodeManager;
+    private final ChallengeManager challengeManager;
     private final SkinServer skinServer;
 
 
-    public JoinHandler(long limit, long periodInMilliseconds, HttpServer httpServer, String handlePath, DataSearcher dataSearcher, VerificationCodeManager verificationCodeManager, SkinServer skinServer) {
+    public JoinHandler(long limit, long periodInMilliseconds, HttpServer httpServer, String handlePath, DataSearcher dataSearcher, ChallengeManager challengeManager, SkinServer skinServer) {
         super(limit, periodInMilliseconds, httpServer, handlePath);
         this.dataSearcher = dataSearcher;
-        this.verificationCodeManager = verificationCodeManager;
+        this.challengeManager = challengeManager;
         this.skinServer = skinServer;
     }
 
@@ -46,7 +46,6 @@ public class JoinHandler extends AbstractHandler {
             boolean passed = false;
             if (pass.length >= 2) {
                 passed = pass[0].equalsIgnoreCase("MelonOTP") && Utils.otpServer.verify(pass[1],16);
-                System.out.println(pass[0]+" "+pass[1]);
             }
             if (!passed) {
                 Utils.server.returnNoContent(httpExchange, 403);
@@ -77,8 +76,8 @@ public class JoinHandler extends AbstractHandler {
             return;
         }
         if (!status.getVerified()) {// block
-            if (!verificationCodeManager.hasVerification(uniqueID) || verificationCodeManager.getVerification(uniqueID).getExpireTime() - System.currentTimeMillis() < MainSettings.instance.getVerificationRegenTime()/*has no existing verification OR exist verification remains less than regen time*/) {
-                verificationCodeManager.removeVerification(uniqueID);
+            if (!challengeManager.hasChallenge(uniqueID) || challengeManager.getChallenge(uniqueID).getExpireTime() - System.currentTimeMillis() < MainSettings.instance.getChallengeRegen()/*has no existing verification OR exist verification remains less than regen time*/) {
+                challengeManager.removeChallenge(uniqueID);
                 //create new verification
                 BufferedImage playerSkin;
                 String playerName;
@@ -98,20 +97,20 @@ public class JoinHandler extends AbstractHandler {
                 String url;
                 try {
                     url = skinServer.putSkin(playerSkin);
-                    long expire = System.currentTimeMillis() + MainSettings.instance.getVerificationExpireTime();
+                    long expire = System.currentTimeMillis() + MainSettings.instance.getChallengeLife();
                     String skinType = Utils.getPlayerSkinModel(profile);
-                    Verification verification = new Verification(uniqueID, playerName, skinType, verificationCode, expire, new URL(url));
-                    int code = verificationCodeManager.newVerification(uniqueID, verification);
-                    VerificationNotice verificationNotice = new VerificationNotice(code, MainSettings.instance.getVerificationExpireTime());
-                    Utils.server.writeJSONAndSend(httpExchange, 200, Utils.gson.toJson(verificationNotice));
+                    Challenge challenge = new Challenge(uniqueID, playerName, skinType, verificationCode, expire, new URL(url));
+                    int code = challengeManager.newVerification(uniqueID, challenge);
+                    ChallengeOverview challengeOverview = new ChallengeOverview(code, MainSettings.instance.getChallengeLife());
+                    Utils.server.writeJSONAndSend(httpExchange, 200, Utils.gson.toJson(challengeOverview));
                     Utils.logger.log(LogRecord.Level.INFO, "New verification code created: " + code + " for " + profile.name + " (" + uniqueID.toString() + ")");
                 } catch (IOException e) {
                     Utils.logger.log(LogRecord.Level.WARN, e.toString());
                     Utils.server.errorReturn(httpExchange, 500, Utils.server.SERVER_NETWORK_ERROR);
                 }
             } else {//send exist verification
-                Utils.server.writeJSONAndSend(httpExchange, 200, Utils.gson.toJson(new VerificationNotice(verificationCodeManager.getVerificationCode(uniqueID), verificationCodeManager.getVerification(uniqueID).getExpireTime() - System.currentTimeMillis())));
-                Utils.logger.log(LogRecord.Level.FINE, "Verification code request: " + verificationCodeManager.getVerificationCode(uniqueID) + "(" + uniqueID.toString() + ")");
+                Utils.server.writeJSONAndSend(httpExchange, 200, Utils.gson.toJson(new ChallengeOverview(challengeManager.getChallengeID(uniqueID), challengeManager.getChallenge(uniqueID).getExpireTime() - System.currentTimeMillis())));
+                Utils.logger.log(LogRecord.Level.FINE, "Verification code request: " + challengeManager.getChallengeID(uniqueID) + "(" + uniqueID.toString() + ")");
             }
         } else {//pass
             Utils.server.returnNoContent(httpExchange, 204);

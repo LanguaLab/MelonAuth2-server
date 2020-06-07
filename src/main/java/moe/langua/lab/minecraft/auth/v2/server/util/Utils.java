@@ -173,7 +173,7 @@ public class Utils {
         public static final Error NOT_FOUND_ERROR = new Error("Not Found", "The server has not found anything matching the request URI", null);
         public static final Error TOO_MANY_REQUEST_ERROR = new Error("TooManyRequestsException", "The client has sent too many requests within a certain amount of time", null);
         //public static final Error VERIFICATION_EXPIRED_ERROR = new Error("Verification Expired", "Your Verification has been expired, please reconnect to server and get a new verification code", null);
-        public static final Error SERVER_NETWORK_ERROR = new Error("Server Network Error", "Server network error, please check your submission and try again later", null);
+        public static final Error SERVER_NETWORK_ERROR = new Error("Server Network Error", "Server network error, please try again later", null);
         public static final Error INTERNAL_ERROR = new Error("Server Internal Error", "Internal error occurred", null);
         //public static final Error BAD_REQUEST = new Error("Bad Request", null, null);
 

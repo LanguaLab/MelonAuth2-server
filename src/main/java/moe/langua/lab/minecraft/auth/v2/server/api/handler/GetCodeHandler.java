@@ -2,19 +2,19 @@ package moe.langua.lab.minecraft.auth.v2.server.api.handler;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
-import moe.langua.lab.minecraft.auth.v2.server.json.server.VerificationCodeDetail;
+import moe.langua.lab.minecraft.auth.v2.server.json.server.ChallengeDetail;
 import moe.langua.lab.minecraft.auth.v2.server.util.Utils;
-import moe.langua.lab.minecraft.auth.v2.server.util.Verification;
-import moe.langua.lab.minecraft.auth.v2.server.util.VerificationCodeManager;
+import moe.langua.lab.minecraft.auth.v2.server.util.Challenge;
+import moe.langua.lab.minecraft.auth.v2.server.util.ChallengeManager;
 
 import java.net.InetAddress;
 
 public class GetCodeHandler extends AbstractHandler {
-    private final VerificationCodeManager verificationCodeManager;
+    private final ChallengeManager challengeManager;
 
-    public GetCodeHandler(long limit, long periodInMilliseconds, HttpServer httpServer, String handlePath, VerificationCodeManager verificationCodeManager) {
+    public GetCodeHandler(long limit, long periodInMilliseconds, HttpServer httpServer, String handlePath, ChallengeManager challengeManager) {
         super(limit, periodInMilliseconds, httpServer, handlePath);
-        this.verificationCodeManager = verificationCodeManager;
+        this.challengeManager = challengeManager;
     }
 
     @Override
@@ -26,14 +26,14 @@ public class GetCodeHandler extends AbstractHandler {
         } catch (NumberFormatException e) {
             return;
         }
-        if (!verificationCodeManager.hasVerification(verificationCode)) {
+        if (!challengeManager.hasChallenge(verificationCode)) {
             return;
-        } else if (verificationCodeManager.getVerification(verificationCode).isExpired()) {
-            verificationCodeManager.removeVerification(verificationCode);
+        } else if (challengeManager.getChallenge(verificationCode).isExpired()) {
+            challengeManager.removeChallenge(verificationCode);
             return;
         }
-        Verification verification = verificationCodeManager.getVerification(verificationCode);
-        VerificationCodeDetail verificationCodeDetail = new VerificationCodeDetail(verification);
-        Utils.server.writeJSONAndSend(httpExchange, 200, Utils.gson.toJson(verificationCodeDetail));
+        Challenge challenge = challengeManager.getChallenge(verificationCode);
+        ChallengeDetail challengeDetail = new ChallengeDetail(challenge);
+        Utils.server.writeJSONAndSend(httpExchange, 200, Utils.gson.toJson(challengeDetail));
     }
 }
