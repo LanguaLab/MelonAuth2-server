@@ -110,7 +110,6 @@ public class JoinHandler extends AbstractHandler {
                 }
             } else {//send exist verification
                 Utils.server.writeJSONAndSend(httpExchange, 200, Utils.gson.toJson(new ChallengeOverview(challengeManager.getChallengeID(uniqueID), challengeManager.getChallenge(uniqueID).getExpireTime() - System.currentTimeMillis())));
-                Utils.logger.log(LogRecord.Level.FINE, "Verification code request: " + challengeManager.getChallengeID(uniqueID) + "(" + uniqueID.toString() + ")");
             }
         } else {//pass
             Utils.server.returnNoContent(httpExchange, 204);

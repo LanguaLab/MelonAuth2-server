@@ -21,7 +21,7 @@ import static moe.langua.lab.minecraft.auth.v2.server.util.Utils.server.SERVER_N
 public class VerifyHandler extends AbstractHandler {
     private final ChallengeManager challengeManager;
     private final DataSearcher dataSearcher;
-    private final Limiter uuidLimiter = new Limiter(1,60000,"/verify/");
+    private final Limiter<UUID> uuidLimiter = new Limiter<>(1,60000,"/verify/");
 
     public VerifyHandler(long limit, long resetPeriod, HttpServer httpServer, String handlePath, DataSearcher dataSearcher, ChallengeManager challengeManager) {
         super(limit, resetPeriod, httpServer, handlePath);
@@ -48,7 +48,8 @@ public class VerifyHandler extends AbstractHandler {
         BufferedImage skin;
         UUID playerUniqueID = challengeManager.getChallenge(verificationCode).getUniqueID();
         if (!uuidLimiter.getUsability(playerUniqueID)){
-            Utils.server.errorReturn(httpExchange,429,Utils.server.TOO_MANY_REQUEST_ERROR.clone().setErrorMessage("only the first request will be proceed each minute per uuid").setExtra(""+(uuidLimiter.getNextReset()-System.currentTimeMillis())));
+            Utils.server.errorReturn(httpExchange,429,Utils.server.TOO_MANY_REQUEST_ERROR.clone().setErrorMessage("only the first request will be proceed each minute per unique id").setExtra(""+(uuidLimiter.getNextReset()-System.currentTimeMillis())));
+            return;
         }
         uuidLimiter.add(playerUniqueID,1);
         try {
@@ -62,8 +63,8 @@ public class VerifyHandler extends AbstractHandler {
             //success
             try {
                 dataSearcher.setPlayerStatus(playerUniqueID, true, requestAddress);
-                Utils.server.writeJSONAndSend(httpExchange, 200, Utils.gson.toJson(Message.getFromString("Your account has been verified successfully")));
-                Utils.logger.log(LogRecord.Level.INFO, challengeManager.getChallenge(verificationCode).getPlayerName() + " (" + challengeManager.getChallenge(verificationCode).getUniqueID().toString() + ") has completed verification challenge.");
+                Utils.server.writeJSONAndSend(httpExchange, 200, Utils.gson.toJson(Message.getFromString("Your account has been verified")));
+                Utils.logger.log(LogRecord.Level.INFO, challengeManager.getChallenge(verificationCode).getPlayerName() + " (" + challengeManager.getChallenge(verificationCode).getUniqueID().toString() + ") has completed challenge.");
             } catch (SQLException e) {
                 Utils.logger.log(LogRecord.Level.ERROR, e.toString());
                 Utils.server.errorReturn(httpExchange, 500, INTERNAL_ERROR);

@@ -26,7 +26,7 @@ public class Server {
         new DefaultHandler(-1, 0, httpServer, "/");
         new JoinHandler(MainSettings.instance.getClientAuthenticationFailed().getLimitPerCircle(), MainSettings.instance.getClientAuthenticationFailed().getCircleInMillisecond(), httpServer, "/join/", searcher, challengeManager, skinServer);
         new GetStatusHandler(MainSettings.instance.getAPIUsageSettings().getGetStatus().getLimitPerCircle(), MainSettings.instance.getAPIUsageSettings().getGetStatus().getCircleInMillisecond(), httpServer, "/get/status/", searcher);
-        new GetCodeHandler(MainSettings.instance.getAPIUsageSettings().getGetCode().getLimitPerCircle(), MainSettings.instance.getAPIUsageSettings().getGetCode().getCircleInMillisecond(), httpServer, "/get/code/", challengeManager);
+        new GetCodeHandler(MainSettings.instance.getAPIUsageSettings().getGetCode().getLimitPerCircle(), MainSettings.instance.getAPIUsageSettings().getGetCode().getCircleInMillisecond(), httpServer, "/get/challenge/", challengeManager);
         new GetSkinHandler(MainSettings.instance.getAPIUsageSettings().getGetSkin().getLimitPerCircle(), MainSettings.instance.getAPIUsageSettings().getGetSkin().getCircleInMillisecond(), httpServer, "/get/skin/", skinServer.getDataRoot());
         new VerifyHandler(MainSettings.instance.getAPIUsageSettings().getVerify().getLimitPerCircle(), MainSettings.instance.getAPIUsageSettings().getVerify().getCircleInMillisecond(), httpServer, "/verify/", searcher, challengeManager);
         httpServer.start();
