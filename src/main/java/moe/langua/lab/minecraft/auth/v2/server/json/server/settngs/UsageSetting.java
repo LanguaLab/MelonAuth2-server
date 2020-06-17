@@ -19,9 +19,9 @@ public class UsageSetting {
         return settingInstance;
     }
 
-    public UsageSetting check(long limitPerCircleByDefault,long circleInMillisecondByDefault){
-        if(limitPerCircle==null) limitPerCircle = limitPerCircleByDefault;
-        if(circleInMillisecond==null) circleInMillisecond=circleInMillisecondByDefault;
+    public UsageSetting check(long limitPerCircleByDefault, long circleInMillisecondByDefault) {
+        if (limitPerCircle == null) limitPerCircle = limitPerCircleByDefault;
+        if (circleInMillisecond == null) circleInMillisecond = circleInMillisecondByDefault;
         return this;
     }
 

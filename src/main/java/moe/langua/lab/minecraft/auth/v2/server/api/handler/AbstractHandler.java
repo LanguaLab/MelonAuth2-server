@@ -22,7 +22,8 @@ public abstract class AbstractHandler implements HttpHandler {
 
     public AbstractHandler(long limit, long periodInMilliseconds, HttpServer httpServer, String handlePath) {
         limiter = new Limiter<>(limit, periodInMilliseconds, handlePath);
-        threadPool.submit(()->{});
+        threadPool.submit(() -> {
+        });
         httpServer.createContext(handlePath, this);
     }
 

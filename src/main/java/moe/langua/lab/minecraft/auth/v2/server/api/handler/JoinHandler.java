@@ -3,14 +3,14 @@ package moe.langua.lab.minecraft.auth.v2.server.api.handler;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import moe.langua.lab.minecraft.auth.v2.server.json.mojang.Profile;
-import moe.langua.lab.minecraft.auth.v2.server.json.server.PlayerStatus;
 import moe.langua.lab.minecraft.auth.v2.server.json.server.ChallengeOverview;
+import moe.langua.lab.minecraft.auth.v2.server.json.server.PlayerStatus;
 import moe.langua.lab.minecraft.auth.v2.server.json.server.settngs.MainSettings;
 import moe.langua.lab.minecraft.auth.v2.server.sql.DataSearcher;
-import moe.langua.lab.minecraft.auth.v2.server.util.SkinServer;
-import moe.langua.lab.minecraft.auth.v2.server.util.Utils;
 import moe.langua.lab.minecraft.auth.v2.server.util.Challenge;
 import moe.langua.lab.minecraft.auth.v2.server.util.ChallengeManager;
+import moe.langua.lab.minecraft.auth.v2.server.util.SkinServer;
+import moe.langua.lab.minecraft.auth.v2.server.util.Utils;
 import moe.langua.lab.utils.logger.utils.LogRecord;
 
 import java.awt.image.BufferedImage;
@@ -45,7 +45,7 @@ public class JoinHandler extends AbstractHandler {
             String[] pass = httpExchange.getRequestHeaders().getFirst("Authorization").split(" ");
             boolean passed = false;
             if (pass.length >= 2) {
-                passed = pass[0].equalsIgnoreCase("MelonOTP") && Utils.otpServer.verify(pass[1],16);
+                passed = pass[0].equalsIgnoreCase("MelonOTP") && Utils.otpServer.verify(pass[1], 16);
             }
             if (!passed) {
                 Utils.server.returnNoContent(httpExchange, 403);

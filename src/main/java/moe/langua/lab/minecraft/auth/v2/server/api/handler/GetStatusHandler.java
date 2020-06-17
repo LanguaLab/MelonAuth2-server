@@ -24,7 +24,7 @@ public class GetStatusHandler extends AbstractHandler {
     public void process(HttpExchange httpExchange, InetAddress requestAddress) {
         if (!httpExchange.getRequestHeaders().containsKey("Authorization")) {
             getLimiter().add(requestAddress, 1);
-            httpExchange.getResponseHeaders().set("WWW-Authenticate", "Password | "+Utils.otpServer.getOTPConfig());
+            httpExchange.getResponseHeaders().set("WWW-Authenticate", "Password | " + Utils.otpServer.getOTPConfig());
             Utils.server.returnNoContent(httpExchange, 401);
             return;
         } else {
@@ -36,8 +36,8 @@ public class GetStatusHandler extends AbstractHandler {
                     passed = pass[1].equals(MainSettings.instance.getQueueKey());
                 } else if (pass[0].equalsIgnoreCase("MelonOTP")) {
                     passed = Utils.otpServer.verify(pass[1], 16);
-                    if(!passed)
-                        getLimiter().add(requestAddress,getLimiter().getLIMIT());
+                    if (!passed)
+                        getLimiter().add(requestAddress, getLimiter().getLIMIT());
                 }
             }
             if (!passed) {

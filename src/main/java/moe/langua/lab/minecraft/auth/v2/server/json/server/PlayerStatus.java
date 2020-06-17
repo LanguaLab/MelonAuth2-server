@@ -32,7 +32,7 @@ public class PlayerStatus {
         return verified;
     }
 
-    public long getCommitTime(){
+    public long getCommitTime() {
         return commitTime;
     }
 

@@ -25,8 +25,8 @@ public class Utils {
     public static final int[] colorTable = {0xff032230, 0xff053248, 0xff07435f, 0xff085477, 0xff0a658f, 0xff0c76a7, 0xff0d87bf, 0xff11a8ee, 0xff40baf2, 0xff70cbf5, 0xff88d4f7, 0xffa0dcf8, 0xffb7e5fa, 0xffcfeefc, 0xffe7f6fd, 0xffffffff};
     public static final Gson gson = new Gson();
     public static final MelonLogger logger = MelonLogger.getLogger();
-    public static MelonTOTP otpServer;
     private static final char[] charSets = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".toCharArray();
+    public static MelonTOTP otpServer;
     private static BufferedImage STEVE;
     private static BufferedImage ALEX;
 

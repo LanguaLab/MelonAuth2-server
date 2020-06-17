@@ -5,8 +5,8 @@ import com.sun.net.httpserver.HttpServer;
 import moe.langua.lab.minecraft.auth.v2.server.api.Limiter;
 import moe.langua.lab.minecraft.auth.v2.server.json.server.Message;
 import moe.langua.lab.minecraft.auth.v2.server.sql.DataSearcher;
-import moe.langua.lab.minecraft.auth.v2.server.util.Utils;
 import moe.langua.lab.minecraft.auth.v2.server.util.ChallengeManager;
+import moe.langua.lab.minecraft.auth.v2.server.util.Utils;
 import moe.langua.lab.utils.logger.utils.LogRecord;
 
 import java.awt.image.BufferedImage;
@@ -21,7 +21,7 @@ import static moe.langua.lab.minecraft.auth.v2.server.util.Utils.server.SERVER_N
 public class VerifyHandler extends AbstractHandler {
     private final ChallengeManager challengeManager;
     private final DataSearcher dataSearcher;
-    private final Limiter<UUID> uuidLimiter = new Limiter<>(1,60000,"/verify/");
+    private final Limiter<UUID> uuidLimiter = new Limiter<>(1, 60000, "/verify/");
 
     public VerifyHandler(long limit, long resetPeriod, HttpServer httpServer, String handlePath, DataSearcher dataSearcher, ChallengeManager challengeManager) {
         super(limit, resetPeriod, httpServer, handlePath);
@@ -47,11 +47,11 @@ public class VerifyHandler extends AbstractHandler {
 
         BufferedImage skin;
         UUID playerUniqueID = challengeManager.getChallenge(verificationCode).getUniqueID();
-        if (!uuidLimiter.getUsability(playerUniqueID)){
-            Utils.server.errorReturn(httpExchange,429,Utils.server.TOO_MANY_REQUEST_ERROR.clone().setErrorMessage("only the first request will be proceed each minute per unique id").setExtra(""+(uuidLimiter.getNextReset()-System.currentTimeMillis())));
+        if (!uuidLimiter.getUsability(playerUniqueID)) {
+            Utils.server.errorReturn(httpExchange, 429, Utils.server.TOO_MANY_REQUEST_ERROR.clone().setErrorMessage("only the first request will be proceed each minute per unique id").setExtra("" + (uuidLimiter.getNextReset() - System.currentTimeMillis())));
             return;
         }
-        uuidLimiter.add(playerUniqueID,1);
+        uuidLimiter.add(playerUniqueID, 1);
         try {
             skin = Utils.getSkin(playerUniqueID);
         } catch (IOException e) {

@@ -4,7 +4,6 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import moe.langua.lab.minecraft.auth.v2.server.json.server.settngs.sql.MySQLSettings;
 import moe.langua.lab.minecraft.auth.v2.server.json.server.settngs.sql.SQLiteSettings;
-import moe.langua.lab.minecraft.auth.v2.server.util.Utils;
 
 public class DatabaseSettings {
 
@@ -25,8 +24,8 @@ public class DatabaseSettings {
 
     public DatabaseSettings check() {
         if (type == null) type = "SQLite";
-        if(sqLiteSettings==null) sqLiteSettings = SQLiteSettings.getDefault();
-        if(mySQLSettings==null) mySQLSettings = MySQLSettings.getDefault();
+        if (sqLiteSettings == null) sqLiteSettings = SQLiteSettings.getDefault();
+        if (mySQLSettings == null) mySQLSettings = MySQLSettings.getDefault();
         sqLiteSettings.check();
         mySQLSettings.check();
         return this;

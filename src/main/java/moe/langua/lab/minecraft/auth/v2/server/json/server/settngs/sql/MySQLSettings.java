@@ -24,6 +24,10 @@ public class MySQLSettings {
     @Expose
     private String tablePrefix;
 
+    public static MySQLSettings getDefault() {
+        return new MySQLSettings().check();
+    }
+
     public String getTablePrefix() {
         return tablePrefix;
     }
@@ -48,7 +52,7 @@ public class MySQLSettings {
         return password;
     }
 
-    public MySQLSettings check(){
+    public MySQLSettings check() {
         if (host == null) host = "127.0.0.1";
         if (port == null) port = 3306;
         if (database == null) database = "databaseName";
@@ -56,9 +60,5 @@ public class MySQLSettings {
         if (password == null) password = Utils.getRandomString(12);
         if (tablePrefix == null) tablePrefix = "AuthV2_";
         return this;
-    }
-
-    public static MySQLSettings getDefault(){
-        return new MySQLSettings().check();
     }
 }

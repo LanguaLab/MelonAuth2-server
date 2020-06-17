@@ -4,8 +4,8 @@ import com.sun.net.httpserver.HttpServer;
 import moe.langua.lab.minecraft.auth.v2.server.api.handler.*;
 import moe.langua.lab.minecraft.auth.v2.server.json.server.settngs.MainSettings;
 import moe.langua.lab.minecraft.auth.v2.server.sql.DataSearcher;
-import moe.langua.lab.minecraft.auth.v2.server.util.SkinServer;
 import moe.langua.lab.minecraft.auth.v2.server.util.ChallengeManager;
+import moe.langua.lab.minecraft.auth.v2.server.util.SkinServer;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
