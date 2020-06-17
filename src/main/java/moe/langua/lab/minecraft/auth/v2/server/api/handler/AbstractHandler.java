@@ -67,8 +67,8 @@ public abstract class AbstractHandler implements HttpHandler {
                 return;
             }
             if (!getLimiter().getUsability(requestAddress)) {
-                Utils.server.errorReturn(httpExchange, 429, Utils.server.TOO_MANY_REQUEST_ERROR.setExtra("" + (getLimiter().getNextReset() - System.currentTimeMillis())));
                 getLimiter().add(requestAddress, 1);
+                Utils.server.errorReturn(httpExchange, 429, Utils.server.TOO_MANY_REQUEST_ERROR.setExtra("" + (getLimiter().getNextReset() - System.currentTimeMillis())));
                 return;
             }
             process:
