@@ -11,14 +11,18 @@ import moe.langua.lab.utils.logger.utils.LogRecord;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashSet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public abstract class AbstractHandler implements HttpHandler {
-    private static HashSet<String> cORSSet = new HashSet<>(MainSettings.instance.getCORSList());
+    private static final HashSet<String> cORSSet = new HashSet<>(MainSettings.instance.getCORSList());
+    private static final ExecutorService threadPool = Executors.newFixedThreadPool(MainSettings.instance.getWorkerThreads());
+
     private final Limiter<InetAddress> limiter;
-    private final String workerName = this.getClass().getName() + "-Receiver";
 
     public AbstractHandler(long limit, long periodInMilliseconds, HttpServer httpServer, String handlePath) {
-        limiter = new Limiter<InetAddress>(limit, periodInMilliseconds, handlePath);
+        limiter = new Limiter<>(limit, periodInMilliseconds, handlePath);
+        threadPool.submit(()->{});
         httpServer.createContext(handlePath, this);
     }
 
@@ -32,7 +36,7 @@ public abstract class AbstractHandler implements HttpHandler {
 
     @Override
     public void handle(HttpExchange httpExchange) {
-        new Thread(() -> {
+        threadPool.submit(() -> {
             long startTime = System.nanoTime();
             if (!httpExchange.getRequestHeaders().containsKey("Proxy-Authorization")) {
                 Utils.server.returnNoContent(httpExchange, 407);
@@ -81,7 +85,7 @@ public abstract class AbstractHandler implements HttpHandler {
                             httpExchange.getResponseCode() / 100 == 2) || httpExchange.getResponseCode() == 429) && workTime < 1000
                             ? LogRecord.Level.FINE : LogRecord.Level.WARN/* FINE if response code is (2xx OR 429) AND workTime is less than 1000ms, WARN if others.*/,
                     requestAddress.toString() + " " + httpExchange.getRequestMethod() + " " + httpExchange.getRequestURI().getPath() + " " + httpExchange.getResponseCode() + " " + workTime + "ms");
-        }, workerName).start();
+        });
     }
 
 }

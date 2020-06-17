@@ -44,6 +44,9 @@ public class MainSettings {
     @SerializedName("clientAuthenticationFailed")
     @Expose
     private UsageSetting clientAuthenticationFailed = null;
+    @SerializedName("workerThreads")
+    @Expose
+    private Integer workerThreads;
     @SerializedName("minimumLogRecordLevel")
     @Expose
     private String minimumLogRecordLevel;
@@ -77,6 +80,7 @@ public class MainSettings {
         if (challengeRegen == null) challengeRegen = 900000L;
         if (challengeLife < challengeRegen) challengeRegen = challengeLife;
         if (clientAuthenticationFailed == null) clientAuthenticationFailed = UsageSetting.get(1, 60000);
+        if (workerThreads == null) workerThreads = Runtime.getRuntime().availableProcessors() / 2 + 1;
         if (minimumLogRecordLevel == null || LogRecord.Level.getFromName(minimumLogRecordLevel) == null)
             minimumLogRecordLevel = "fine";
         if (applicationOwner == null) applicationOwner = "LanguaLab";
@@ -138,6 +142,10 @@ public class MainSettings {
 
     public String getApplicationOwner() {
         return applicationOwner;
+    }
+
+    public Integer getWorkerThreads() {
+        return workerThreads;
     }
 
     public String getApplicationDescription() {

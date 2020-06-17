@@ -25,14 +25,14 @@ public class SQLiteDataSearcher implements DataSearcher {
         File dataBaseFile = new File(dataRoot, "verification.db");
         String url = "jdbc:sqlite:" + dataBaseFile.getAbsolutePath();
         jDBCConnection = DriverManager.getConnection(url);
-        String disableSynchronous = "PRAGMA synchronous = " + MainSettings.instance.getDatabaseSettings().getSqLiteSettings().getSynchronous() + ";";
+        String synchronousConfig = "PRAGMA synchronous = " + MainSettings.instance.getDatabaseSettings().getSqLiteSettings().getSynchronous() + ";";
         String journalModeConfig = "PRAGMA journal_mode = " + MainSettings.instance.getDatabaseSettings().getSqLiteSettings().getJournalMode() + ";";
         String initializeTable =
                 "CREATE TABLE IF NOT EXISTS Verifications (\n" +
                         " RecordID INTEGER PRIMARY KEY AUTOINCREMENT,\n" +
                         " UniqueIDMost INTEGER,\n" +
                         " UniqueIDLeast INTEGER,\n" +
-                        " Status BOOLEAN,\n" +
+                        " Status INTEGER,\n" +
                         " CommitIPAddress TEXT,\n" +
                         " CommitTime INTEGER\n" +
                         ");";
@@ -44,7 +44,7 @@ public class SQLiteDataSearcher implements DataSearcher {
 
         {
             Statement statementInstance = jDBCConnection.createStatement();
-            statementInstance.execute(disableSynchronous);
+            statementInstance.execute(synchronousConfig);
             statementInstance.execute(journalModeConfig);
             statementInstance.execute(initializeTable);
             statementInstance.execute(initializeIndex);
