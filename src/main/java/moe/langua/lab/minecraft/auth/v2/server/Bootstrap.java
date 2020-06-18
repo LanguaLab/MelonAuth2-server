@@ -12,10 +12,7 @@ import moe.langua.lab.utils.logger.handler.ConsoleLogHandler;
 import moe.langua.lab.utils.logger.handler.DailyRollingFileLogHandler;
 import moe.langua.lab.utils.logger.utils.LogRecord;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 
@@ -26,7 +23,7 @@ public class Bootstrap {
     public static void main(String... args) throws SQLException, IOException {
         long start = System.currentTimeMillis();
         System.out.println("Loading runtime...");
-        Gson prettyGson = new GsonBuilder().setPrettyPrinting().create();
+        Gson prettyGson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
         File dataRoot = new File(new File("").getAbsolutePath());
         File configFile = new File(dataRoot.getAbsolutePath() + "/config.json");
         MainSettings settings;
@@ -34,15 +31,15 @@ public class Bootstrap {
         if (configFile.createNewFile()) {
             settings = MainSettings.getDefault();
         } else if (configFile.isFile()) {
-            settings = Utils.gson.fromJson(new FileReader(configFile), MainSettings.class);
+            settings = Utils.gson.fromJson(new InputStreamReader(new FileInputStream(configFile), StandardCharsets.UTF_8), MainSettings.class);
             settings.check();
         } else {
             throw new IOException(configFile.getAbsolutePath() + " should be a file, but found a directory.");
         }
-        FileWriter writer = new FileWriter(configFile, false);
-        writer.write(prettyGson.toJson(settings));
-        writer.flush();
-        writer.close();
+        FileOutputStream configOutputStream = new FileOutputStream(configFile,false);
+        configOutputStream.write(prettyGson.toJson(settings).getBytes(StandardCharsets.UTF_8));
+        configOutputStream.flush();
+        configOutputStream.close();
 
         MainSettings.instance = settings;
         Utils.otpServer = new MelonTOTP(MainSettings.instance.getClientKey().getBytes(StandardCharsets.UTF_8), TRUNCATE_VALUE, OTP_EXPIRATION);
