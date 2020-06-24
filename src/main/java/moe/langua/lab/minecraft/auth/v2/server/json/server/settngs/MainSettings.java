@@ -20,9 +20,6 @@ public class MainSettings {
     @SerializedName("proxyKey")
     @Expose
     private String proxyKey;
-    @SerializedName("APIUrl")
-    @Expose
-    private String aPIUrl;
     @SerializedName("CORSList")
     @Expose
     private List<String> CORSList;
@@ -66,8 +63,6 @@ public class MainSettings {
         if (clientKey == null) clientKey = Utils.getRandomString(64);
         if (queueKey == null) queueKey = Utils.getRandomString(24);
         if (proxyKey == null) proxyKey = Utils.getRandomString(24);
-        if (aPIUrl == null) aPIUrl = "http://127.0.0.1:11014";
-        aPIUrl = Utils.removeSlashAtTheEnd(aPIUrl);
         if (CORSList == null) CORSList = new ArrayList<>();
         for (int index = 0; index < CORSList.size(); index++) {
             CORSList.set(index, Utils.removeSlashAtTheEnd(CORSList.get(index)));
@@ -102,10 +97,6 @@ public class MainSettings {
 
     public String getQueueKey() {
         return queueKey;
-    }
-
-    public String getAPIUrl() {
-        return aPIUrl;
     }
 
     public List<String> getCORSList() {

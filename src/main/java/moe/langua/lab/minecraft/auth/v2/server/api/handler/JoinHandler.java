@@ -94,12 +94,12 @@ public class JoinHandler extends AbstractHandler {
                 }
                 int[] verificationCode = Utils.generateRandomVerificationCodeArray();
                 Utils.paintVerificationCode(playerSkin, verificationCode);
-                String url;
+                String urlPath;
                 try {
-                    url = skinServer.putSkin(playerSkin);
+                    urlPath = skinServer.putSkin(playerSkin);
                     long expire = System.currentTimeMillis() + MainSettings.instance.getChallengeLife();
                     String skinType = Utils.getPlayerSkinModel(profile);
-                    Challenge challenge = new Challenge(uniqueID, playerName, skinType, verificationCode, expire, new URL(url));
+                    Challenge challenge = new Challenge(uniqueID, playerName, skinType, verificationCode, expire, urlPath);
                     int code = challengeManager.newVerification(uniqueID, challenge);
                     ChallengeOverview challengeOverview = new ChallengeOverview(code, MainSettings.instance.getChallengeLife());
                     Utils.server.writeJSONAndSend(httpExchange, 200, Utils.gson.toJson(challengeOverview));

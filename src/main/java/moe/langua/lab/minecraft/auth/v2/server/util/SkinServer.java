@@ -10,15 +10,13 @@ import java.util.Objects;
 
 public class SkinServer {
     private final File dataRoot;
-    private final String host;
     private final long expireTime;
 
-    public SkinServer(File dataRoot, String host, long expireTime) {
+    public SkinServer(File dataRoot, long expireTime) {
         if (!dataRoot.mkdir() && !dataRoot.isDirectory()) {
             Utils.logger.log(LogRecord.Level.ERROR, new IOException("LogFolder " + dataRoot.getAbsolutePath() + " should be a folder, but found a file.").toString());
         }
         this.dataRoot = dataRoot;
-        this.host = host;
         this.expireTime = expireTime;
     }
 
@@ -30,13 +28,12 @@ public class SkinServer {
     public String putSkin(BufferedImage skinImage) throws IOException {
         String fileName = Integer.toHexString(skinImage.hashCode()) + ".png";
         ImageIO.write(skinImage, "png", new File(dataRoot, fileName));
-        return host + "/get/skin/" + fileName;
+        return "/get/skin/" + fileName;
     }
 
     public void purge() {
         purge(expireTime);
     }
-
 
     private void purge(long expireTime) {
         long now = System.currentTimeMillis();

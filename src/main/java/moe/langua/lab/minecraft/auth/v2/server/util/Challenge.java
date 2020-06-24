@@ -13,15 +13,15 @@ public class Challenge {
     private final String skinModel;
     private final int[] verificationCode;
     private final long expireTime;
-    private final URL skinURL;
+    private final String urlPath;
 
-    public Challenge(UUID uniqueID, String playerName, String skinModel, int[] verificationCode, long expireTime, URL skinURL) {
+    public Challenge(UUID uniqueID, String playerName, String skinModel, int[] verificationCode, long expireTime, String urlPath) {
         this.uniqueID = uniqueID;
         this.playerName = playerName;
         this.skinModel = skinModel;
         this.verificationCode = verificationCode;
         this.expireTime = expireTime;
-        this.skinURL = skinURL;
+        this.urlPath = urlPath;
     }
 
     public UUID getUniqueID() {
@@ -44,8 +44,8 @@ public class Challenge {
         return playerName;
     }
 
-    public URL getSkinURL() {
-        return skinURL;
+    public String getUrlPath() {
+        return urlPath;
     }
 
     public String getSkinModel() {

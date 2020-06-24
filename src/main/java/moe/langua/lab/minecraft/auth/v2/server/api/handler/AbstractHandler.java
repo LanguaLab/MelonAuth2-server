@@ -53,13 +53,13 @@ public abstract class AbstractHandler implements HttpHandler {
                     httpExchange.getResponseHeaders().set("Access-Control-Allow-Origin", origin);
             }
             InetAddress requestAddress;
-            if (!httpExchange.getRequestHeaders().containsKey("X-Real-IP")) {
+            if (!httpExchange.getRequestHeaders().containsKey("X-Forwarded-For")||!httpExchange.getRequestHeaders().containsKey("X-Forwarded-Host")||!httpExchange.getRequestHeaders().containsKey("X-Forwarded-Proto")) {
                 Utils.server.returnNoContent(httpExchange, 403);
-                Utils.logger.log(LogRecord.Level.WARN, httpExchange.getRemoteAddress().toString() + " tried to " + httpExchange.getRequestMethod() + " " + httpExchange.getRequestURI().getPath() + " with a bad request (No X-Real-IP Header).");
+                Utils.logger.log(LogRecord.Level.WARN, httpExchange.getRemoteAddress().toString() + " tried to " + httpExchange.getRequestMethod() + " " + httpExchange.getRequestURI().getPath() + " with a bad request (No X-Forwarded Headers).");
                 return;
             }
             try {
-                requestAddress = InetAddress.getByName(httpExchange.getRequestHeaders().getFirst("X-Real-IP"));
+                requestAddress = InetAddress.getByName(httpExchange.getRequestHeaders().getFirst("X-Forwarded-For"));
             } catch (UnknownHostException e) {
                 Utils.logger.log(LogRecord.Level.ERROR, e.toString());
                 Utils.logger.log(LogRecord.Level.ERROR, "It may caused by inappropriate reverse proxy configurations, please see 'url of reverse proxy configuration manual here' and reconfiguration your reverse proxy server.");
