@@ -26,9 +26,15 @@ public class SkinServer {
 
 
     public String putSkin(BufferedImage skinImage) throws IOException {
-        String fileName = Integer.toHexString(skinImage.hashCode()) + ".png";
-        ImageIO.write(skinImage, "png", new File(dataRoot, fileName));
-        return "/get/skin/" + fileName;
+        String fileName = Integer.toHexString(skinImage.hashCode());
+        File skinFile = new File(dataRoot, fileName + ".png");
+        long differ = 0;
+        while (skinFile.exists()) {
+            skinFile = new File(dataRoot, fileName + Long.toHexString(differ++) + ".png");
+        }
+        Utils.logger.debug("Finale skin file: " + skinFile.getAbsolutePath());
+        ImageIO.write(skinImage, "png", skinFile);
+        return "/get/skin/" + skinFile.getName();
     }
 
     public void purge() {

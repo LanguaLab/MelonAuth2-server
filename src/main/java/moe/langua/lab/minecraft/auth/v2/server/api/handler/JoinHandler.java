@@ -16,7 +16,6 @@ import moe.langua.lab.utils.logger.utils.LogRecord;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.URL;
 import java.sql.SQLException;
 import java.util.UUID;
 

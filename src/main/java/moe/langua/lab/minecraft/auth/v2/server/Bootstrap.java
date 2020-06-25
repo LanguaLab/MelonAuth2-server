@@ -36,7 +36,7 @@ public class Bootstrap {
         } else {
             throw new IOException(configFile.getAbsolutePath() + " should be a file, but found a directory.");
         }
-        FileOutputStream configOutputStream = new FileOutputStream(configFile,false);
+        FileOutputStream configOutputStream = new FileOutputStream(configFile, false);
         configOutputStream.write(prettyGson.toJson(settings).getBytes(StandardCharsets.UTF_8));
         configOutputStream.flush();
         configOutputStream.close();
@@ -58,7 +58,7 @@ public class Bootstrap {
 
         Utils.logger.log(LogRecord.Level.INFO, "Loading server SecretKey...");
         if (settings.getClientKey().length() < 64) {
-            Utils.logger.log(LogRecord.Level.WARN, "Short secret key detected. Remove the secret key object completely from 'config.json' and restart the server to generate a new key to avoid this warning.");
+            Utils.logger.log(LogRecord.Level.WARN, "Short secret key detected. Remove the clientKey object completely from 'config.json' and restart the server to generate a new key to avoid this warning.");
         }
 
         Utils.logger.log(LogRecord.Level.INFO, "Initializing SkinServer...");

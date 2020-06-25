@@ -8,6 +8,7 @@ import moe.langua.lab.minecraft.auth.v2.server.json.mojang.Property;
 import moe.langua.lab.minecraft.auth.v2.server.json.server.Error;
 import moe.langua.lab.security.otp.MelonTOTP;
 import moe.langua.lab.utils.logger.MelonLogger;
+import moe.langua.lab.utils.logger.utils.LogRecord;
 
 import javax.imageio.ImageIO;
 import javax.net.ssl.HttpsURLConnection;
@@ -27,18 +28,6 @@ public class Utils {
     public static final MelonLogger logger = MelonLogger.getLogger();
     private static final char[] charSets = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".toCharArray();
     public static MelonTOTP otpServer;
-    private static BufferedImage STEVE;
-    private static BufferedImage ALEX;
-
-    static {
-        try {
-            STEVE = ImageIO.read(Utils.class.getResource("/steve.png"));
-            ALEX = ImageIO.read(Utils.class.getResource("/alex.png"));
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.exit(-1);
-        }
-    }
 
     public static void paintVerificationCode(BufferedImage targetSkin, int[] verificationCode) {
         int colorIndex;
@@ -77,7 +66,17 @@ public class Utils {
         Property property = profile.properties.get(0);
         String playerProfileJSON = base64ToString(property.value);
         PlayerProfile playerProfile = gson.fromJson(playerProfileJSON, PlayerProfile.class);
-        return playerProfile.textures.sKIN.metadata == null ? "steve" : "alex";
+        boolean isSteve;
+        if (playerProfile.textures.sKIN != null) {
+            isSteve = playerProfile.textures.sKIN.metadata == null;
+        } else {
+            isSteve = isDefaultSteve(fullUUIDFromTrimmed(profile.id));
+        }
+        return isSteve ? "steve" : "alex";
+    }
+
+    private static boolean isDefaultSteve(UUID uniqueID) {
+        return (uniqueID.hashCode() & 1) == 0;
     }
 
     public static BufferedImage getSkinFromProfile(Profile profile) throws IOException {
@@ -85,7 +84,10 @@ public class Utils {
         String playerProfileJSON = base64ToString(property.value);
         PlayerProfile playerProfile = gson.fromJson(playerProfileJSON, PlayerProfile.class);
         if (playerProfile.textures.sKIN == null) {
-            return (fullUUIDFromTrimmed(profile.id).hashCode() & 1) == 0 ? STEVE : ALEX;
+            boolean isDefaultSteve = isDefaultSteve(fullUUIDFromTrimmed(profile.id));
+            logger.log(LogRecord.Level.DEBUG, profile.name + " has no customized skin. Use default skin (" + (isDefaultSteve ? "steve" : "alex") + ") instead.");
+            BufferedImage result = isDefaultSteve ? ImageIO.read(Utils.class.getResourceAsStream("/steve.png")) : ImageIO.read(Utils.class.getResourceAsStream("/alex.png"));
+            return result;
         } else {
             return ImageIO.read(new URL(playerProfile.textures.sKIN.url.replace("http://", "https://")));
         }

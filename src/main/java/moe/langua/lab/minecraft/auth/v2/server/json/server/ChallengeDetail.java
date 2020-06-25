@@ -25,11 +25,11 @@ public class ChallengeDetail {
     public ChallengeDetail() {
     }
 
-    public ChallengeDetail(Challenge challenge,String requestURL) {
+    public ChallengeDetail(Challenge challenge, String requestURL) {
         this.uuid = challenge.getUniqueID().toString();
         this.name = challenge.getPlayerName();
         this.expireIn = challenge.getExpireTime() - System.currentTimeMillis();
-        this.url = requestURL+challenge.getUrlPath();
+        this.url = requestURL + challenge.getUrlPath();
         this.skinModel = challenge.getSkinModel();
     }
 

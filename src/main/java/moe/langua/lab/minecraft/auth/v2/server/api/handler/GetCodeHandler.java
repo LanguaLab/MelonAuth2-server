@@ -33,7 +33,7 @@ public class GetCodeHandler extends AbstractHandler {
             return;
         }
         Challenge challenge = challengeManager.getChallenge(verificationCode);
-        ChallengeDetail challengeDetail = new ChallengeDetail(challenge,httpExchange.getRequestHeaders().getFirst("X-Forwarded-Proto")+"://"+httpExchange.getRequestHeaders().getFirst("X-Forwarded-Host"));
+        ChallengeDetail challengeDetail = new ChallengeDetail(challenge, httpExchange.getRequestHeaders().getFirst("X-Forwarded-Proto") + "://" + httpExchange.getRequestHeaders().getFirst("X-Forwarded-Host"));
         Utils.server.writeJSONAndSend(httpExchange, 200, Utils.gson.toJson(challengeDetail));
     }
 }
