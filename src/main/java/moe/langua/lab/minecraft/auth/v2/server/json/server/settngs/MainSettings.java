@@ -29,6 +29,12 @@ public class MainSettings {
     @SerializedName("skinBase")
     @Expose
     private String skinBase;
+    @SerializedName("lifetimeVerification")
+    @Expose
+    private Boolean lifetimeVerification;
+    @SerializedName("verificationLife")
+    @Expose
+    private Long verificationLife;
     @SerializedName("challengeLife")
     @Expose
     private Long challengeLife;
@@ -71,6 +77,8 @@ public class MainSettings {
         if (skinBase == null) skinBase = "./skins";
         if (APIUsageSettings == null)
             APIUsageSettings = moe.langua.lab.minecraft.auth.v2.server.json.server.settngs.APIUsageSettings.getDefault();
+        if (lifetimeVerification == null) lifetimeVerification = true;
+        if (verificationLife == null) verificationLife = 31622400000L; //366 days
         if (challengeLife == null) challengeLife = 1800000L;
         if (challengeRegen == null) challengeRegen = 900000L;
         if (challengeLife < challengeRegen) challengeRegen = challengeLife;
@@ -137,6 +145,14 @@ public class MainSettings {
 
     public Integer getWorkerThreads() {
         return workerThreads;
+    }
+
+    public Boolean isLifetimeVerification() {
+        return lifetimeVerification;
+    }
+
+    public Long getVerificationLife() {
+        return verificationLife;
     }
 
     public String getApplicationDescription() {

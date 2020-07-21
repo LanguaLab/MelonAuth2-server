@@ -90,14 +90,25 @@ public class SQLiteDataSearcher implements DataSearcher {
             insertStatement.setLong(2, uniqueID.getLeastSignificantBits());
             insertStatement.setBoolean(3, false);
             insertStatement.executeUpdate();
-            return PlayerStatus.get(uniqueID, false, null);
+            return PlayerStatus.get(uniqueID, false, null, null);
         } else {
             //lookup status and return
             getStatusStatement.setLong(1, uniqueID.getMostSignificantBits());
             getStatusStatement.setLong(2, uniqueID.getLeastSignificantBits());
             ResultSet statusResultSet = getStatusStatement.executeQuery();
-            return PlayerStatus.get(uniqueID, statusResultSet.getBoolean("Status"),
-                    statusResultSet.getLong("CommitTime") == 0 ? null : statusResultSet.getLong("CommitTime"));
+            if (statusResultSet.getBoolean("Status")) {
+                if (MainSettings.instance.isLifetimeVerification()) {
+                    return PlayerStatus.get(uniqueID, true, statusResultSet.getLong("CommitTime"), null);
+                } else {
+                    if (System.currentTimeMillis() < (statusResultSet.getLong("CommitTime") + MainSettings.instance.getVerificationLife())) {
+                        return PlayerStatus.get(uniqueID, false, null, null);
+                    } else {
+                        return PlayerStatus.get(uniqueID, true, statusResultSet.getLong("CommitTime"), MainSettings.instance.getVerificationLife());
+                    }
+                }
+            } else {
+                return PlayerStatus.get(uniqueID, false, null, null);
+            }
         }
     }
 
