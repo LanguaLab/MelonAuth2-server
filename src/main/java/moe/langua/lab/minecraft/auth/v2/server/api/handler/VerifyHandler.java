@@ -47,11 +47,11 @@ public class VerifyHandler extends AbstractHandler {
 
         BufferedImage skin;
         UUID playerUniqueID = challengeManager.getChallenge(verificationCode).getUniqueID();
-        uuidLimiter.add(playerUniqueID, 1);
         if (!uuidLimiter.getUsability(playerUniqueID)) {
             Utils.server.errorReturn(httpExchange, 429, Utils.server.TOO_MANY_REQUEST_ERROR.clone().setErrorMessage("only the first request will be proceed each minute per unique id").setExtra("" + (uuidLimiter.getNextReset() - System.currentTimeMillis())));
             return;
         }
+        uuidLimiter.add(playerUniqueID, 1);
         try {
             skin = Utils.getSkin(playerUniqueID);
         } catch (IOException e) {

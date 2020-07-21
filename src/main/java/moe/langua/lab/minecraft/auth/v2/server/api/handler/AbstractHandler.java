@@ -17,7 +17,6 @@ import java.util.concurrent.Executors;
 public abstract class AbstractHandler implements HttpHandler {
     private static final HashSet<String> cORSSet = new HashSet<>(MainSettings.instance.getCORSList());
     private static final ExecutorService threadPool = Executors.newFixedThreadPool(MainSettings.instance.getWorkerThreads());
-
     private final Limiter<InetAddress> limiter;
 
     public AbstractHandler(long limit, long periodInMilliseconds, HttpServer httpServer, String handlePath) {
