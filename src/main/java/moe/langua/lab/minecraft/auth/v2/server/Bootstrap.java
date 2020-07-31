@@ -5,9 +5,9 @@ import com.google.gson.GsonBuilder;
 import moe.langua.lab.minecraft.auth.v2.server.api.Server;
 import moe.langua.lab.minecraft.auth.v2.server.json.server.settngs.MainSettings;
 import moe.langua.lab.minecraft.auth.v2.server.sql.SQLiteDataSearcher;
+import moe.langua.lab.minecraft.auth.v2.server.util.PassManager;
 import moe.langua.lab.minecraft.auth.v2.server.util.SkinServer;
 import moe.langua.lab.minecraft.auth.v2.server.util.Utils;
-import moe.langua.lab.security.otp.MelonTOTP;
 import moe.langua.lab.utils.logger.handler.ConsoleLogHandler;
 import moe.langua.lab.utils.logger.handler.DailyRollingFileLogHandler;
 import moe.langua.lab.utils.logger.utils.LogRecord;
@@ -17,8 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 
 public class Bootstrap {
-    private static final long TRUNCATE_VALUE = 0x100000000L;
-    private static final long OTP_EXPIRATION = 30000;
+
 
     public static void main(String... args) throws SQLException, IOException {
         long start = System.currentTimeMillis();
@@ -42,7 +41,6 @@ public class Bootstrap {
         configOutputStream.close();
 
         MainSettings.instance = settings;
-        Utils.otpServer = new MelonTOTP(MainSettings.instance.getClientKey().getBytes(StandardCharsets.UTF_8), TRUNCATE_VALUE, OTP_EXPIRATION);
         Utils.logger.addHandler(new ConsoleLogHandler(LogRecord.Level.getFromName(settings.getMinimumLogRecordLevel())));
 
         File logFolder = new File(dataRoot.getAbsolutePath() + "/logs");
@@ -57,9 +55,7 @@ public class Bootstrap {
         }
 
         Utils.logger.log(LogRecord.Level.INFO, "Loading server SecretKey...");
-        if (settings.getClientKey().length() < 64) {
-            Utils.logger.log(LogRecord.Level.WARN, "Short secret key detected. Remove the clientKey object completely from 'config.json' and restart the server to generate a new key to avoid this warning.");
-        }
+        Utils.passManager = new PassManager(MainSettings.instance.getClientKeys(), MainSettings.instance.getQueueKeys());
 
         Utils.logger.log(LogRecord.Level.INFO, "Initializing SkinServer...");
         File skinServerRoot = new File(dataRoot.getAbsolutePath() + "/" + settings.getSkinBase());

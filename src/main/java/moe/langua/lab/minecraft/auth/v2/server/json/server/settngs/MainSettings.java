@@ -13,10 +13,10 @@ public class MainSettings {
 
     @SerializedName("clientKey")
     @Expose
-    private String clientKey;
+    private List<String> clientKey;
     @SerializedName("queueKey")
     @Expose
-    private String queueKey;
+    private List<String> queueKey;
     @SerializedName("proxyKey")
     @Expose
     private String proxyKey;
@@ -66,8 +66,15 @@ public class MainSettings {
     }
 
     public MainSettings check() {
-        if (clientKey == null) clientKey = Utils.getRandomString(64);
-        if (queueKey == null) queueKey = Utils.getRandomString(24);
+        String randomServerName = "Server_" + Utils.getRandomString(8);
+        if (clientKey == null) {
+            clientKey = new ArrayList<>();
+            clientKey.add(Utils.getRandomString(64) + ":" + randomServerName + ":*");
+        }
+        if (queueKey == null) {
+            queueKey = new ArrayList<>();
+            queueKey.add(Utils.getRandomString(24) + ":" + randomServerName + ":*");
+        }
         if (proxyKey == null) proxyKey = Utils.getRandomString(24);
         if (CORSList == null) CORSList = new ArrayList<>();
         for (int index = 0; index < CORSList.size(); index++) {
@@ -95,7 +102,7 @@ public class MainSettings {
         return this;
     }
 
-    public String getClientKey() {
+    public List<String> getClientKeys() {
         return clientKey;
     }
 
@@ -103,7 +110,7 @@ public class MainSettings {
         return proxyKey;
     }
 
-    public String getQueueKey() {
+    public List<String> getQueueKeys() {
         return queueKey;
     }
 

@@ -6,7 +6,6 @@ import moe.langua.lab.minecraft.auth.v2.server.json.mojang.PlayerProfile;
 import moe.langua.lab.minecraft.auth.v2.server.json.mojang.Profile;
 import moe.langua.lab.minecraft.auth.v2.server.json.mojang.Property;
 import moe.langua.lab.minecraft.auth.v2.server.json.server.Error;
-import moe.langua.lab.security.otp.MelonTOTP;
 import moe.langua.lab.utils.logger.MelonLogger;
 import moe.langua.lab.utils.logger.utils.LogRecord;
 
@@ -27,7 +26,7 @@ public class Utils {
     public static final Gson gson = new Gson();
     public static final MelonLogger logger = MelonLogger.getLogger();
     private static final char[] charSets = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".toCharArray();
-    public static MelonTOTP otpServer;
+    public static PassManager passManager;
 
     public static void paintVerificationCode(BufferedImage targetSkin, int[] verificationCode) {
         int colorIndex;
