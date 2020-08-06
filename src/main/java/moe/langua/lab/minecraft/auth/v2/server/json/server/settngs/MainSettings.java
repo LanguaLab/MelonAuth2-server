@@ -11,12 +11,12 @@ import java.util.List;
 public class MainSettings {
     public static MainSettings instance;
 
-    @SerializedName("clientKey")
+    @SerializedName("secretKeyList")
     @Expose
-    private List<String> clientKey;
-    @SerializedName("queueKey")
+    private List<String> secretKeyList;
+    @SerializedName("queueKeyList")
     @Expose
-    private List<String> queueKey;
+    private List<String> queueKeyList;
     @SerializedName("proxyKey")
     @Expose
     private String proxyKey;
@@ -67,13 +67,14 @@ public class MainSettings {
 
     public MainSettings check() {
         String randomServerName = "Server_" + Utils.getRandomString(8);
-        if (clientKey == null) {
-            clientKey = new ArrayList<>();
-            clientKey.add(Utils.getRandomString(64) + ":" + randomServerName + ":*");
+        String EVERYTHING = ".*";
+        if (secretKeyList == null) {
+            secretKeyList = new ArrayList<>();
+            secretKeyList.add(Utils.getRandomString(64) + ":" + randomServerName + ":"+ EVERYTHING);
         }
-        if (queueKey == null) {
-            queueKey = new ArrayList<>();
-            queueKey.add(Utils.getRandomString(24) + ":" + randomServerName + ":*");
+        if (queueKeyList == null) {
+            queueKeyList = new ArrayList<>();
+            queueKeyList.add(Utils.getRandomString(24) + ":" + randomServerName + ":"+ EVERYTHING);
         }
         if (proxyKey == null) proxyKey = Utils.getRandomString(24);
         if (CORSList == null) CORSList = new ArrayList<>();
@@ -103,7 +104,7 @@ public class MainSettings {
     }
 
     public List<String> getClientKeys() {
-        return clientKey;
+        return secretKeyList;
     }
 
     public String getProxyKey() {
@@ -111,7 +112,7 @@ public class MainSettings {
     }
 
     public List<String> getQueueKeys() {
-        return queueKey;
+        return queueKeyList;
     }
 
     public List<String> getCORSList() {

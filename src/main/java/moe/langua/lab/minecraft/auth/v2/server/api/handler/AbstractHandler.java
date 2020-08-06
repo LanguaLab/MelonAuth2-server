@@ -26,13 +26,11 @@ public abstract class AbstractHandler implements HttpHandler {
         httpServer.createContext(handlePath, this);
     }
 
-    public Limiter<InetAddress> getLimiter() {
+    protected Limiter<InetAddress> getLimiter() {
         return limiter;
     }
 
-    public void process(HttpExchange httpExchange, InetAddress requestAddress) {
-
-    }
+    abstract void process(HttpExchange httpExchange, InetAddress requestAddress);
 
     @Override
     public void handle(HttpExchange httpExchange) {
