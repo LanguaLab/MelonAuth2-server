@@ -5,6 +5,7 @@ import com.sun.net.httpserver.HttpServer;
 import moe.langua.lab.minecraft.auth.v2.server.api.Limiter;
 import moe.langua.lab.minecraft.auth.v2.server.json.server.Message;
 import moe.langua.lab.minecraft.auth.v2.server.sql.DataSearcher;
+import moe.langua.lab.minecraft.auth.v2.server.util.Challenge;
 import moe.langua.lab.minecraft.auth.v2.server.util.ChallengeManager;
 import moe.langua.lab.minecraft.auth.v2.server.util.Utils;
 import moe.langua.lab.utils.logger.utils.LogRecord;
@@ -31,22 +32,58 @@ public class VerifyHandler extends AbstractHandler {
 
     @Override
     public void process(HttpExchange httpExchange, InetAddress requestAddress) {
-        getLimiter().add(requestAddress, 1);
-        int verificationCode;
-        try {
-            verificationCode = Integer.parseInt(Utils.getLastChild(httpExchange.getRequestURI()));
-        } catch (NumberFormatException e) {
-            return;
+        boolean uuidMode = false;
+        UUID playerUniqueID = null;
+        if (httpExchange.getRequestHeaders().containsKey("Authorization")) {
+            String[] pass = httpExchange.getRequestHeaders().getFirst("Authorization").split(" ");
+            boolean passed = false;
+            if (pass.length >= 2) {
+                passed = Utils.passManager.verifySecret(pass[1], requestAddress);
+            }
+            if (!passed) {
+                Utils.server.returnNoContent(httpExchange, 403);
+                getLimiter().add(requestAddress, 1);
+                return;
+            }
+            try {
+                playerUniqueID = UUID.fromString(Utils.getLastChild(httpExchange.getRequestURI()));
+                uuidMode = true;
+            } catch (IllegalArgumentException ignore) {
+
+            }
+        } else {
+            getLimiter().add(requestAddress, 1);
         }
-        if (!challengeManager.hasChallenge(verificationCode)) {
-            return;
-        } else if (challengeManager.getChallenge(verificationCode).isExpired()) {
-            challengeManager.removeChallenge(verificationCode);
-            return;
+
+        int verificationCode = 0;
+        if (!uuidMode) {
+            try {
+                verificationCode = Integer.parseInt(Utils.getLastChild(httpExchange.getRequestURI()));
+            } catch (NumberFormatException ignore) {
+                return;
+            }
+        }
+
+
+        Challenge challenge;
+        if (uuidMode) {
+            if (!challengeManager.hasChallenge(playerUniqueID)) {
+                return;
+            } else if ((challenge = challengeManager.getChallenge(playerUniqueID)).isExpired()) {
+                challengeManager.removeChallenge(playerUniqueID);
+                return;
+            }
+        } else {
+            if (!challengeManager.hasChallenge(verificationCode)) {
+                return;
+            } else if ((challenge = challengeManager.getChallenge(verificationCode)).isExpired()) {
+                challengeManager.removeChallenge(verificationCode);
+                return;
+            }
         }
 
         BufferedImage skin;
-        UUID playerUniqueID = challengeManager.getChallenge(verificationCode).getUniqueID();
+        playerUniqueID = challenge.getUniqueID();
         if (!uuidLimiter.getUsability(playerUniqueID)) {
             Utils.server.errorReturn(httpExchange, 429, Utils.server.TOO_MANY_REQUEST_ERROR.clone().setErrorMessage("only the first request will be proceed each minute per unique id").setExtra("" + (uuidLimiter.getNextReset() - System.currentTimeMillis())));
             return;
@@ -59,17 +96,20 @@ public class VerifyHandler extends AbstractHandler {
             Utils.server.errorReturn(httpExchange, 500, SERVER_NETWORK_ERROR);
             return;
         }
-        if (challengeManager.getChallenge(verificationCode).verify(skin)) {
+        if (challenge.verify(skin)) {
             //success
             try {
                 dataSearcher.setPlayerStatus(playerUniqueID, true, requestAddress);
                 Utils.server.writeJSONAndSend(httpExchange, 200, Utils.gson.toJson(Message.getFromString("Your account has been verified")));
-                Utils.logger.log(LogRecord.Level.INFO, challengeManager.getChallenge(verificationCode).getPlayerName() + " (" + challengeManager.getChallenge(verificationCode).getUniqueID().toString() + ") has completed challenge.");
+                Utils.logger.log(LogRecord.Level.INFO, challenge.getPlayerName() + " (" + challenge.getUniqueID().toString() + ") has completed challenge.");
             } catch (SQLException e) {
                 Utils.logger.log(LogRecord.Level.ERROR, e.toString());
                 Utils.server.errorReturn(httpExchange, 500, INTERNAL_ERROR);
             } finally {
-                challengeManager.removeChallenge(verificationCode);
+                if (uuidMode)
+                    challengeManager.removeChallenge(playerUniqueID);
+                else
+                    challengeManager.removeChallenge(verificationCode);
             }
         } else {
             //failed
