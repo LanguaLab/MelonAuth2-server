@@ -1,7 +1,5 @@
 package moe.langua.lab.minecraft.auth.v2.server;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import moe.langua.lab.minecraft.auth.v2.server.api.Server;
 import moe.langua.lab.minecraft.auth.v2.server.json.server.settngs.MainSettings;
 import moe.langua.lab.minecraft.auth.v2.server.sql.SQLiteDataSearcher;
@@ -12,8 +10,8 @@ import moe.langua.lab.utils.logger.handler.ConsoleLogHandler;
 import moe.langua.lab.utils.logger.handler.DailyRollingFileLogHandler;
 import moe.langua.lab.utils.logger.utils.LogRecord;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
+import java.io.File;
+import java.io.IOException;
 import java.sql.SQLException;
 
 public class Bootstrap {
@@ -22,26 +20,11 @@ public class Bootstrap {
     public static void main(String... args) throws SQLException, IOException {
         long start = System.currentTimeMillis();
         System.out.println("Loading runtime...");
-        Gson prettyGson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
+
         File dataRoot = new File(new File("").getAbsolutePath());
-        File configFile = new File(dataRoot.getAbsolutePath() + "/config.json");
-        MainSettings settings;
-
-        if (configFile.createNewFile()) {
-            settings = MainSettings.getDefault();
-        } else if (configFile.isFile()) {
-            settings = Utils.gson.fromJson(new InputStreamReader(new FileInputStream(configFile), StandardCharsets.UTF_8), MainSettings.class);
-            settings.check();
-        } else {
-            throw new IOException(configFile.getAbsolutePath() + " should be a file, but found a directory.");
-        }
-        FileOutputStream configOutputStream = new FileOutputStream(configFile, false);
-        configOutputStream.write(prettyGson.toJson(settings).getBytes(StandardCharsets.UTF_8));
-        configOutputStream.flush();
-        configOutputStream.close();
-
-        MainSettings.instance = settings;
-        Utils.logger.addHandler(new ConsoleLogHandler(LogRecord.Level.getFromName(settings.getMinimumLogRecordLevel())));
+        File settingsFile = new File(dataRoot.getAbsolutePath() + "/config.json");
+        MainSettings.instance = MainSettings.readFromFile(settingsFile);
+        Utils.logger.addHandler(new ConsoleLogHandler(LogRecord.Level.getFromName(MainSettings.instance.getMinimumLogRecordLevel())));
 
         File logFolder = new File(dataRoot.getAbsolutePath() + "/logs");
         if (!logFolder.mkdir() && logFolder.isFile()) {
@@ -49,18 +32,18 @@ public class Bootstrap {
         }
 
         try {
-            Utils.logger.addHandler(new DailyRollingFileLogHandler(LogRecord.Level.getFromName(settings.getMinimumLogRecordLevel()), logFolder));
+            Utils.logger.addHandler(new DailyRollingFileLogHandler(LogRecord.Level.getFromName(MainSettings.instance.getMinimumLogRecordLevel()), logFolder));
         } catch (IOException e) {
             Utils.logger.log(LogRecord.Level.FATAL, e.toString());
         }
 
         Utils.logger.log(LogRecord.Level.INFO, "Loading server SecretKey...");
-        Utils.passManager = new PassManager(MainSettings.instance.getClientKeys(), MainSettings.instance.getQueueKeys());
+        Utils.passManager = new PassManager(MainSettings.instance.getSecretKeys(), MainSettings.instance.getQueueKeys());
 
         Utils.logger.log(LogRecord.Level.INFO, "Initializing SkinServer...");
-        File skinServerRoot = new File(dataRoot.getAbsolutePath() + "/" + settings.getSkinBase());
+        File skinServerRoot = new File(dataRoot.getAbsolutePath() + "/" + MainSettings.instance.getSkinBase());
 
-        SkinServer skinServer = new SkinServer(skinServerRoot, settings.getChallengeLife());
+        SkinServer skinServer = new SkinServer(skinServerRoot, MainSettings.instance.getChallengeLife());
         Runtime.getRuntime().addShutdownHook(new Thread(skinServer::purgeAll));
 
         Utils.logger.log(LogRecord.Level.INFO, "API Starting...");

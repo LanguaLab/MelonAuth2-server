@@ -1,16 +1,20 @@
 package moe.langua.lab.minecraft.auth.v2.server.json.server.settngs;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import moe.langua.lab.minecraft.auth.v2.server.util.Utils;
 import moe.langua.lab.utils.logger.utils.LogRecord;
 
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainSettings {
+    private static final Gson prettyGson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
     public static MainSettings instance;
-
     @SerializedName("secretKeyList")
     @Expose
     private List<String> secretKeyList;
@@ -65,16 +69,33 @@ public class MainSettings {
         return new MainSettings().check();
     }
 
+    public static MainSettings readFromFile(File settingsFile) throws IOException {
+        MainSettings settings;
+        if (settingsFile.createNewFile()) {
+            settings = MainSettings.getDefault();
+        } else if (settingsFile.isFile()) {
+            settings = Utils.gson.fromJson(new InputStreamReader(new FileInputStream(settingsFile), StandardCharsets.UTF_8), MainSettings.class);
+            settings.check();
+        } else {
+            throw new IOException(settingsFile.getAbsolutePath() + " should be a file, but found a directory.");
+        }
+        FileOutputStream configOutputStream = new FileOutputStream(settingsFile, false);
+        configOutputStream.write(prettyGson.toJson(settings).getBytes(StandardCharsets.UTF_8));
+        configOutputStream.flush();
+        configOutputStream.close();
+        return settings;
+    }
+
     public MainSettings check() {
         String randomServerName = "Server_" + Utils.getRandomString(8);
         String EVERYTHING = ".*";
         if (secretKeyList == null) {
             secretKeyList = new ArrayList<>();
-            secretKeyList.add(Utils.getRandomString(64) + ":" + randomServerName + ":"+ EVERYTHING);
+            secretKeyList.add(Utils.getRandomString(64) + ":" + randomServerName + ":" + EVERYTHING);
         }
         if (queueKeyList == null) {
             queueKeyList = new ArrayList<>();
-            queueKeyList.add(Utils.getRandomString(24) + ":" + randomServerName + ":"+ EVERYTHING);
+            queueKeyList.add(Utils.getRandomString(24) + ":" + randomServerName + ":" + EVERYTHING);
         }
         if (proxyKey == null) proxyKey = Utils.getRandomString(24);
         if (CORSList == null) CORSList = new ArrayList<>();
@@ -103,7 +124,7 @@ public class MainSettings {
         return this;
     }
 
-    public List<String> getClientKeys() {
+    public List<String> getSecretKeys() {
         return secretKeyList;
     }
 
