@@ -11,7 +11,7 @@ pipeline {
 
     post {
         always {
-            archiveArtifacts artifacts: 'target/MelonAuth-Server-*.jar', fingerprint: true
+            archiveArtifacts artifacts: 'target/MelonAuth2-Server-*.jar', fingerprint: true
             cleanWs()
         }
     }
