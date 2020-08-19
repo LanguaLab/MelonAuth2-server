@@ -70,15 +70,15 @@ public class PassManager {
         return verifySecret(spited[0], spited[1], address);
     }
 
-    public String generateQueueAuthorizationHeader(String serverName){
-        if(!queueKeyMap.containsKey(serverName)) return null;
+    public String generateQueueAuthorizationHeader(String serverName) {
+        if (!queueKeyMap.containsKey(serverName)) return null;
         String authorizationString = serverName + ":" + queueKeyMap.get(serverName);
         byte[] encodedAuthorization = Base64.getEncoder().encode(authorizationString.getBytes(StandardCharsets.UTF_8));
         return "Basic " + new String(encodedAuthorization, StandardCharsets.UTF_8);
     }
 
-    public String generateSecretAuthorizationHeader(String serverName){
-        if(!secretKeyMap.containsKey(serverName)) return null;
+    public String generateSecretAuthorizationHeader(String serverName) {
+        if (!secretKeyMap.containsKey(serverName)) return null;
         String authorizationString = serverName + ":" + secretKeyMap.get(serverName);
         byte[] encodedAuthorization = Base64.getEncoder().encode(authorizationString.getBytes(StandardCharsets.UTF_8));
         return "Basic " + new String(encodedAuthorization, StandardCharsets.UTF_8);

@@ -82,7 +82,7 @@ public abstract class AbstractHandler implements HttpHandler {
             Utils.logger.log(((
                             httpExchange.getResponseCode() / 100 == 2) || httpExchange.getResponseCode() == 429) && workTime < 1000
                             ? LogRecord.Level.FINE : LogRecord.Level.WARN/* FINE if response code is (2xx OR 429) AND workTime is less than 1000ms, WARN if others.*/,
-                    requestAddress.toString() + " " + httpExchange.getRequestMethod() + " " + httpExchange.getRequestURI().getPath() + " " + httpExchange.getResponseCode() + " " + workTime + "ms");
+                    requestAddress.getHostAddress() + " " + httpExchange.getRequestMethod() + " " + httpExchange.getRequestURI().getPath() + " " + httpExchange.getResponseCode() + " " + workTime + "ms");
         });
     }
 
