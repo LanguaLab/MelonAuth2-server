@@ -5,7 +5,6 @@ import com.sun.net.httpserver.HttpServer;
 import moe.langua.lab.minecraft.auth.v2.server.json.server.PlayerStatus;
 import moe.langua.lab.minecraft.auth.v2.server.sql.DataSearcher;
 import moe.langua.lab.minecraft.auth.v2.server.util.Utils;
-import moe.langua.lab.utils.logger.utils.LogRecord;
 
 import java.net.InetAddress;
 import java.sql.SQLException;
@@ -57,7 +56,7 @@ public class GetStatusHandler extends AbstractHandler {
         try {
             status = dataSearcher.getPlayerStatus(uniqueID);
         } catch (SQLException e) {
-            Utils.logger.log(LogRecord.Level.ERROR, e.toString());
+            Utils.logger.error(e.toString());
             Utils.server.errorReturn(httpExchange, 500, Utils.server.INTERNAL_ERROR);
             return;
         }

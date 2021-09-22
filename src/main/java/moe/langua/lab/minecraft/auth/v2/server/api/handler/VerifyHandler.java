@@ -8,7 +8,6 @@ import moe.langua.lab.minecraft.auth.v2.server.sql.DataSearcher;
 import moe.langua.lab.minecraft.auth.v2.server.util.Challenge;
 import moe.langua.lab.minecraft.auth.v2.server.util.ChallengeManager;
 import moe.langua.lab.minecraft.auth.v2.server.util.Utils;
-import moe.langua.lab.utils.logger.utils.LogRecord;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -92,7 +91,7 @@ public class VerifyHandler extends AbstractHandler {
         try {
             skin = Utils.getSkin(playerUniqueID);
         } catch (IOException e) {
-            Utils.logger.log(LogRecord.Level.WARN, e.toString());
+            Utils.logger.warn(e.toString());
             Utils.server.errorReturn(httpExchange, 500, SERVER_NETWORK_ERROR);
             return;
         }
@@ -101,9 +100,9 @@ public class VerifyHandler extends AbstractHandler {
             try {
                 dataSearcher.setPlayerStatus(playerUniqueID, true, requestAddress);
                 Utils.server.writeJSONAndSend(httpExchange, 200, Utils.gson.toJson(Message.getFromString("Your account has been verified")));
-                Utils.logger.log(LogRecord.Level.INFO, challenge.getPlayerName() + " (" + challenge.getUniqueID().toString() + ") has completed challenge.");
+                Utils.logger.info(challenge.getPlayerName() + " (" + challenge.getUniqueID().toString() + ") has completed challenge.");
             } catch (SQLException e) {
-                Utils.logger.log(LogRecord.Level.ERROR, e.toString());
+                Utils.logger.error(e.toString());
                 Utils.server.errorReturn(httpExchange, 500, INTERNAL_ERROR);
             } finally {
                 if (uuidMode)

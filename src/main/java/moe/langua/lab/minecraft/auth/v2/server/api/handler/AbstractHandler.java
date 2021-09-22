@@ -6,7 +6,7 @@ import com.sun.net.httpserver.HttpServer;
 import moe.langua.lab.minecraft.auth.v2.server.api.Limiter;
 import moe.langua.lab.minecraft.auth.v2.server.json.server.settngs.MainSettings;
 import moe.langua.lab.minecraft.auth.v2.server.util.Utils;
-import moe.langua.lab.utils.logger.utils.LogRecord;
+import org.apache.logging.log4j.Level;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -18,6 +18,7 @@ public abstract class AbstractHandler implements HttpHandler {
     private static final HashSet<String> cORSSet = new HashSet<>(MainSettings.instance.getCORSList());
     private static final ExecutorService threadPool = Executors.newFixedThreadPool(MainSettings.instance.getWorkerThreads());
     private final Limiter<InetAddress> limiter;
+    private InetAddress requestAddress;
 
     public AbstractHandler(long limit, long periodInMilliseconds, HttpServer httpServer, String handlePath) {
         limiter = new Limiter<>(limit, periodInMilliseconds, handlePath);
@@ -41,7 +42,7 @@ public abstract class AbstractHandler implements HttpHandler {
                 return;
             } else if (!httpExchange.getRequestHeaders().getFirst("Proxy-Authorization").equals(MainSettings.instance.getProxyKey())) {
                 Utils.server.returnNoContent(httpExchange, 403);
-                Utils.logger.log(LogRecord.Level.WARN, httpExchange.getRemoteAddress().toString() + " tried to " + httpExchange.getRequestMethod() + " " + httpExchange.getRequestURI().getPath() + " with a wrong proxy password(" + httpExchange.getRequestHeaders().getFirst("Proxy-Authorization") + ").");
+                Utils.logger.warn(httpExchange.getRemoteAddress().toString() + " tried to " + httpExchange.getRequestMethod() + " " + httpExchange.getRequestURI().getPath() + " with a wrong proxy password(" + httpExchange.getRequestHeaders().getFirst("Proxy-Authorization") + ").");
                 return;
             }
             if (httpExchange.getRequestHeaders().containsKey("Origin")) {
@@ -49,17 +50,16 @@ public abstract class AbstractHandler implements HttpHandler {
                 if (cORSSet.contains(origin))
                     httpExchange.getResponseHeaders().set("Access-Control-Allow-Origin", origin);
             }
-            InetAddress requestAddress;
             if (!httpExchange.getRequestHeaders().containsKey("X-Forwarded-For") || !httpExchange.getRequestHeaders().containsKey("X-Forwarded-Host") || !httpExchange.getRequestHeaders().containsKey("X-Forwarded-Proto")) {
                 Utils.server.returnNoContent(httpExchange, 403);
-                Utils.logger.log(LogRecord.Level.WARN, httpExchange.getRemoteAddress().toString() + " tried to " + httpExchange.getRequestMethod() + " " + httpExchange.getRequestURI().getPath() + " with a bad request (No X-Forwarded Headers).");
+                Utils.logger.warn(httpExchange.getRemoteAddress().toString() + " tried to " + httpExchange.getRequestMethod() + " " + httpExchange.getRequestURI().getPath() + " with a bad request (No X-Forwarded Headers).");
                 return;
             }
             try {
                 requestAddress = InetAddress.getByName(httpExchange.getRequestHeaders().getFirst("X-Forwarded-For"));
             } catch (UnknownHostException e) {
-                Utils.logger.log(LogRecord.Level.ERROR, e.toString());
-                Utils.logger.log(LogRecord.Level.ERROR, "It may caused by inappropriate reverse proxy configurations, please see 'url of reverse proxy configuration manual here' and reconfiguration your reverse proxy server.");
+                Utils.logger.error(e.toString());
+                Utils.logger.error("It may caused by inappropriate reverse proxy configurations, please see 'url of reverse proxy configuration manual here' and reconfiguration your reverse proxy server.");
                 Utils.server.returnNoContent(httpExchange, 403);
                 return;
             }
@@ -79,9 +79,8 @@ public abstract class AbstractHandler implements HttpHandler {
                     Utils.server.errorReturn(httpExchange, 404, Utils.server.NOT_FOUND_ERROR);
             }
             float workTime = (System.nanoTime() - startTime) / 1000000F;
-            Utils.logger.log(((
-                            httpExchange.getResponseCode() / 100 == 2) || httpExchange.getResponseCode() == 429) && workTime < 1000
-                            ? LogRecord.Level.FINE : LogRecord.Level.WARN/* FINE if response code is (2xx OR 429) AND workTime is less than 1000ms, WARN if others.*/,
+            Utils.logger.log(((httpExchange.getResponseCode() / 100 == 2) || httpExchange.getResponseCode() == 429) && workTime < 1000
+                            ? Level.INFO : Level.WARN/* FINE if response code is (2xx OR 429) AND workTime is less than 1000ms, WARN if others.*/,
                     requestAddress.getHostAddress() + " " + httpExchange.getRequestMethod() + " " + httpExchange.getRequestURI().getPath() + " " + httpExchange.getResponseCode() + " " + workTime + "ms");
         });
     }

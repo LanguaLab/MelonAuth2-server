@@ -1,0 +1,27 @@
+<Configuration xmlns="http://logging.apache.org/log4j/2.0/config">
+    <Properties>
+        <Property name="log.pattern">| %d{MM-dd-yyyy} | %d{HH:mm:ss.SSS} | %t | %level | %msg%n</Property>
+    </Properties>
+    <Appenders>
+        <Console target="SYSTEM_OUT" name="stdout">
+            <PatternLayout pattern="${log.pattern}"/>
+        </Console>
+        <RollingFile name="cc2file" fileName="logs/latest.log"
+                     filePattern="logs/%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout>
+                <Pattern>${log.pattern}</Pattern>
+            </PatternLayout>
+            <Policies>
+                <OnStartupTriggeringPolicy/>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="1 GB"/>
+            </Policies>
+        </RollingFile>
+    </Appenders>
+    <Loggers>
+        <Root level="info">
+            <AppenderRef ref="stdout"/>
+            <AppenderRef ref="cc2file"/>
+        </Root>
+    </Loggers>
+</Configuration>

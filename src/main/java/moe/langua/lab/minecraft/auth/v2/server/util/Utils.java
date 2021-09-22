@@ -6,8 +6,8 @@ import moe.langua.lab.minecraft.auth.v2.server.json.mojang.PlayerProfile;
 import moe.langua.lab.minecraft.auth.v2.server.json.mojang.Profile;
 import moe.langua.lab.minecraft.auth.v2.server.json.mojang.Property;
 import moe.langua.lab.minecraft.auth.v2.server.json.server.Error;
-import moe.langua.lab.utils.logger.MelonLogger;
-import moe.langua.lab.utils.logger.utils.LogRecord;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.imageio.ImageIO;
 import javax.net.ssl.HttpsURLConnection;
@@ -24,8 +24,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public class Utils {
     public static final int[] colorTable = {0xff032230, 0xff053248, 0xff07435f, 0xff085477, 0xff0a658f, 0xff0c76a7, 0xff0d87bf, 0xff11a8ee, 0xff40baf2, 0xff70cbf5, 0xff88d4f7, 0xffa0dcf8, 0xffb7e5fa, 0xffcfeefc, 0xffe7f6fd, 0xffffffff};
     public static final Gson gson = new Gson();
-    public static final MelonLogger logger = MelonLogger.getLogger();
     private static final char[] charSets = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".toCharArray();
+    public static Logger logger = LogManager.getLogger("main");
     public static PassManager passManager;
 
     public static void paintVerificationCode(BufferedImage targetSkin, int[] verificationCode) {
@@ -84,7 +84,7 @@ public class Utils {
         PlayerProfile playerProfile = gson.fromJson(playerProfileJSON, PlayerProfile.class);
         if (playerProfile.textures.sKIN == null) {
             boolean isDefaultSteve = isDefaultSteve(fullUUIDFromTrimmed(profile.id));
-            logger.log(LogRecord.Level.DEBUG, profile.name + " has no customized skin. Use default skin (" + (isDefaultSteve ? "steve" : "alex") + ") instead.");
+            logger.debug(profile.name + " has no customized skin. Use default skin (" + (isDefaultSteve ? "steve" : "alex") + ") instead.");
             BufferedImage result = isDefaultSteve ? ImageIO.read(Utils.class.getResourceAsStream("/steve.png")) : ImageIO.read(Utils.class.getResourceAsStream("/alex.png"));
             return result;
         } else {

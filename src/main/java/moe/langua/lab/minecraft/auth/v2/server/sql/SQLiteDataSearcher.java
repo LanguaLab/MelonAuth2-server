@@ -3,7 +3,6 @@ package moe.langua.lab.minecraft.auth.v2.server.sql;
 import moe.langua.lab.minecraft.auth.v2.server.json.server.PlayerStatus;
 import moe.langua.lab.minecraft.auth.v2.server.json.server.settngs.MainSettings;
 import moe.langua.lab.minecraft.auth.v2.server.util.Utils;
-import moe.langua.lab.utils.logger.utils.LogRecord;
 
 import java.io.File;
 import java.net.InetAddress;
@@ -18,7 +17,7 @@ public class SQLiteDataSearcher implements DataSearcher {
     private final PreparedStatement updateStatement;
 
     public SQLiteDataSearcher(File dataRoot) throws IllegalArgumentException, SQLException {
-        Utils.logger.log(LogRecord.Level.INFO, "Initializing SQLite for verification data storage...");
+        Utils.logger.info("Initializing SQLite for verification data storage...");
         if (!dataRoot.mkdir() && !dataRoot.isDirectory()) {
             throw new IllegalArgumentException(dataRoot.getAbsolutePath() + " should be a directory, but found a file.");
         }
@@ -75,7 +74,7 @@ public class SQLiteDataSearcher implements DataSearcher {
                 "UPDATE Verifications SET Status = ? ,CommitIPAddress = ? ,CommitTime = ? " +
                         "WHERE UniqueIDMost = ? AND UniqueIDLeast = ?;");
 
-        Utils.logger.log(LogRecord.Level.INFO, "SQLite has been loaded.");
+        Utils.logger.info("SQLite has been loaded.");
     }
 
     @Override

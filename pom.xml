@@ -6,7 +6,7 @@
 
     <groupId>moe.langua.lab.minecraft.auth.v2.server</groupId>
     <artifactId>MelonAuth2-Server</artifactId>
-    <version>0</version>
+    <version>0.1α</version>
 
     <properties>
         <maven.compiler.target>1.8</maven.compiler.target>
@@ -23,12 +23,6 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>moe.langua.lab.utils.logger</groupId>
-            <artifactId>MelonLogger</artifactId>
-            <version>3.1.0</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>org.xerial</groupId>
             <artifactId>sqlite-jdbc</artifactId>
             <version>3.31.1</version>
@@ -40,6 +34,14 @@
             <version>8.0.20</version>
             <scope>compile</scope>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.14.1</version>
+            <scope>compile</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -66,12 +68,11 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>moe.langua.lab.minecraft.auth.v2.server.Bootstrap</mainClass>
+                            <mainClass>moe.langua.lab.minecraft.auth.v2.server.Entry</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -85,6 +86,17 @@
                         <goals>
                             <goal>shade</goal>
                         </goals>
+                        <configuration>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>moe.langua.lab.minecraft.auth.v2.server.Entry</mainClass>
+                                    <manifestEntries>
+                                        <Multi-Release>true</Multi-Release>
+                                    </manifestEntries>
+                                </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                            </transformers>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

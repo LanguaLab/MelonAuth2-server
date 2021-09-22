@@ -9,7 +9,6 @@ import moe.langua.lab.minecraft.auth.v2.server.util.Challenge;
 import moe.langua.lab.minecraft.auth.v2.server.util.ChallengeManager;
 import moe.langua.lab.minecraft.auth.v2.server.util.SkinServer;
 import moe.langua.lab.minecraft.auth.v2.server.util.Utils;
-import moe.langua.lab.utils.logger.utils.LogRecord;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -69,7 +68,7 @@ public class RequireHandler extends AbstractHandler {
                 playerSkin = Utils.getSkinFromProfile(profile);
             } catch (IOException e) {
                 Utils.server.errorReturn(httpExchange, 500, Utils.server.SERVER_NETWORK_ERROR);
-                Utils.logger.log(LogRecord.Level.WARN, e.toString());
+                Utils.logger.warn(e.toString());
                 return;
             }
             int[] verificationCode = Utils.generateRandomVerificationCodeArray();
@@ -83,9 +82,9 @@ public class RequireHandler extends AbstractHandler {
                 int code = challengeManager.newVerification(uniqueID, challenge);
                 ChallengeOverview challengeOverview = new ChallengeOverview(code, MainSettings.instance.getChallengeLife());
                 Utils.server.writeJSONAndSend(httpExchange, 200, Utils.gson.toJson(challengeOverview));
-                Utils.logger.log(LogRecord.Level.INFO, "New verification code created: " + code + " for " + profile.name + " (" + uniqueID.toString() + ")");
+                Utils.logger.info("New verification code created: " + code + " for " + profile.name + " (" + uniqueID.toString() + ")");
             } catch (IOException e) {
-                Utils.logger.log(LogRecord.Level.WARN, e.toString());
+                Utils.logger.warn(e.toString());
                 Utils.server.errorReturn(httpExchange, 500, Utils.server.SERVER_NETWORK_ERROR);
             }
         } else {//send exist verification

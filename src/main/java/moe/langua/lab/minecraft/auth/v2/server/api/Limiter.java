@@ -1,7 +1,6 @@
 package moe.langua.lab.minecraft.auth.v2.server.api;
 
 import moe.langua.lab.minecraft.auth.v2.server.util.Utils;
-import moe.langua.lab.utils.logger.utils.LogRecord;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -29,7 +28,7 @@ public class Limiter<ObjectType> {
             for (ObjectType x : usageRecord.keySet()) {
                 long times = usageRecord.get(x);
                 if (times > 10 && times > (limit * 2)) {
-                    Utils.logger.log(LogRecord.Level.WARN, x.toString() + " tried to get " + handlerHandlePath + " for " + times + " times with in the last usage reset circle (" + periodInMilliseconds / 1000.0 + " seconds).");
+                    Utils.logger.warn(x.toString() + " tried to get " + handlerHandlePath + " for " + times + " times with in the last usage reset circle (" + periodInMilliseconds / 1000.0 + " seconds).");
                 }
             }
             usageRecord.clear();

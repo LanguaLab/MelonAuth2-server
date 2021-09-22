@@ -5,7 +5,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import moe.langua.lab.minecraft.auth.v2.server.util.Utils;
-import moe.langua.lab.utils.logger.utils.LogRecord;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -54,9 +53,6 @@ public class MainSettings {
     @SerializedName("workerThreads")
     @Expose
     private Integer workerThreads;
-    @SerializedName("minimumLogRecordLevel")
-    @Expose
-    private String minimumLogRecordLevel;
     @SerializedName("applicationOwner")
     @Expose
     private String applicationOwner;
@@ -65,7 +61,7 @@ public class MainSettings {
     private String applicationDescription;
 
     public static MainSettings getDefault() {
-        Utils.logger.log(LogRecord.Level.INFO, "First startup detected. Generating default config file...");
+        Utils.logger.info("First startup detected. Generating default config file...");
         return new MainSettings().check();
     }
 
@@ -113,8 +109,6 @@ public class MainSettings {
         if (challengeLife < challengeRegen) challengeRegen = challengeLife;
         if (clientAuthenticationFailed == null) clientAuthenticationFailed = UsageSetting.get(1, 60000);
         if (workerThreads == null) workerThreads = Runtime.getRuntime().availableProcessors() / 2 + 1;
-        if (minimumLogRecordLevel == null || LogRecord.Level.getFromName(minimumLogRecordLevel) == null)
-            minimumLogRecordLevel = "fine";
         if (applicationOwner == null) applicationOwner = "LanguaLab";
         if (applicationDescription == null) applicationDescription = "MelonAuth v2 Public API";
 
@@ -162,10 +156,6 @@ public class MainSettings {
 
     public UsageSetting getClientAuthenticationFailed() {
         return clientAuthenticationFailed;
-    }
-
-    public String getMinimumLogRecordLevel() {
-        return minimumLogRecordLevel;
     }
 
     public String getApplicationOwner() {
