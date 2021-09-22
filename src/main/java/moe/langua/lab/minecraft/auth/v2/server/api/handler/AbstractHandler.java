@@ -18,7 +18,6 @@ public abstract class AbstractHandler implements HttpHandler {
     private static final HashSet<String> cORSSet = new HashSet<>(MainSettings.instance.getCORSList());
     private static final ExecutorService threadPool = Executors.newFixedThreadPool(MainSettings.instance.getWorkerThreads());
     private final Limiter<InetAddress> limiter;
-    private InetAddress requestAddress;
 
     public AbstractHandler(long limit, long periodInMilliseconds, HttpServer httpServer, String handlePath) {
         limiter = new Limiter<>(limit, periodInMilliseconds, handlePath);
@@ -55,6 +54,7 @@ public abstract class AbstractHandler implements HttpHandler {
                 Utils.logger.warn(httpExchange.getRemoteAddress().toString() + " tried to " + httpExchange.getRequestMethod() + " " + httpExchange.getRequestURI().getPath() + " with a bad request (No X-Forwarded Headers).");
                 return;
             }
+            InetAddress requestAddress;
             try {
                 requestAddress = InetAddress.getByName(httpExchange.getRequestHeaders().getFirst("X-Forwarded-For"));
             } catch (UnknownHostException e) {
