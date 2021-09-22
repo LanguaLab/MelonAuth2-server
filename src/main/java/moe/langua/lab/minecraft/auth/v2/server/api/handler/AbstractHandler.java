@@ -5,6 +5,7 @@ import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import moe.langua.lab.minecraft.auth.v2.server.api.Limiter;
 import moe.langua.lab.minecraft.auth.v2.server.json.server.settngs.MainSettings;
+import moe.langua.lab.minecraft.auth.v2.server.util.HandlerThreadFactory;
 import moe.langua.lab.minecraft.auth.v2.server.util.Utils;
 import org.apache.logging.log4j.Level;
 
@@ -16,7 +17,7 @@ import java.util.concurrent.Executors;
 
 public abstract class AbstractHandler implements HttpHandler {
     private static final HashSet<String> cORSSet = new HashSet<>(MainSettings.instance.getCORSList());
-    private static final ExecutorService threadPool = Executors.newFixedThreadPool(MainSettings.instance.getWorkerThreads());
+    private static final ExecutorService threadPool = Executors.newFixedThreadPool(MainSettings.instance.getWorkerThreads(), new HandlerThreadFactory());
     private final Limiter<InetAddress> limiter;
 
     public AbstractHandler(long limit, long periodInMilliseconds, HttpServer httpServer, String handlePath) {
