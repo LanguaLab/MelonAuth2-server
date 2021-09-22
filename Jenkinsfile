@@ -2,8 +2,11 @@ pipeline {
     agent any
     stages {
         stage('Build') {
+            tools {
+                jdk "jdk11"
+            }
             steps {
-                mvn package
+                sh 'mvn package'
             }
         }
     }
