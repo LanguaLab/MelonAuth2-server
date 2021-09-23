@@ -6,6 +6,7 @@ import moe.langua.lab.minecraft.auth.v2.server.json.server.ChallengeDetail;
 import moe.langua.lab.minecraft.auth.v2.server.util.Challenge;
 import moe.langua.lab.minecraft.auth.v2.server.util.ChallengeManager;
 import moe.langua.lab.minecraft.auth.v2.server.util.Utils;
+import org.jetbrains.annotations.NotNull;
 
 import java.net.InetAddress;
 import java.util.UUID;
@@ -19,7 +20,7 @@ public class GetChallengeHandler extends AbstractHandler {
     }
 
     @Override
-    public void process(HttpExchange httpExchange, InetAddress requestAddress) {
+    public void process(HttpExchange httpExchange, @NotNull InetAddress requestAddress) {
         boolean uuidMode = false;
         UUID playerUniqueID = null;
         if (httpExchange.getRequestHeaders().containsKey("Authorization")) {
@@ -37,7 +38,7 @@ public class GetChallengeHandler extends AbstractHandler {
                 playerUniqueID = UUID.fromString(Utils.getLastChild(httpExchange.getRequestURI()));
                 uuidMode = true;
             } catch (IllegalArgumentException ignore) {
-
+                /*uuidMode = false;*/
             }
         } else {
             getLimiter().add(requestAddress, 1);

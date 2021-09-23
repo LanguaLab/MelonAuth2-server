@@ -8,6 +8,7 @@ import moe.langua.lab.minecraft.auth.v2.server.sql.DataSearcher;
 import moe.langua.lab.minecraft.auth.v2.server.util.Challenge;
 import moe.langua.lab.minecraft.auth.v2.server.util.ChallengeManager;
 import moe.langua.lab.minecraft.auth.v2.server.util.Utils;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -30,7 +31,7 @@ public class VerifyHandler extends AbstractHandler {
     }
 
     @Override
-    public void process(HttpExchange httpExchange, InetAddress requestAddress) {
+    public void process(HttpExchange httpExchange, @NotNull InetAddress requestAddress) {
         boolean uuidMode = false;
         UUID playerUniqueID = null;
         if (httpExchange.getRequestHeaders().containsKey("Authorization")) {
@@ -83,7 +84,7 @@ public class VerifyHandler extends AbstractHandler {
 
         BufferedImage skin;
         playerUniqueID = challenge.getUniqueID();
-        if (!uuidLimiter.getUsability(playerUniqueID)) {
+        if (!uuidLimiter.isUseable(playerUniqueID)) {
             Utils.server.errorReturn(httpExchange, 429, Utils.server.TOO_MANY_REQUEST_ERROR.clone().setErrorMessage("only the first request will be proceed each minute per unique id").setExtra("" + (uuidLimiter.getNextReset() - System.currentTimeMillis())));
             return;
         }

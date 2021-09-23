@@ -36,7 +36,7 @@ public class Limiter<ObjectType> {
         }, firstDelay, periodInMilliseconds, TimeUnit.MILLISECONDS);
     }
 
-    public boolean getUsability(ObjectType target) {
+    public boolean isUseable(ObjectType target) {
         if (LIMIT < 0) return true;
         if (!usageRecord.containsKey(target)) usageRecord.put(target, 0L);
         return usageRecord.get(target) < LIMIT;
