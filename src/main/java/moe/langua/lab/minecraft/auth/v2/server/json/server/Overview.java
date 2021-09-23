@@ -2,9 +2,9 @@ package moe.langua.lab.minecraft.auth.v2.server.json.server;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import moe.langua.lab.minecraft.auth.v2.server.util.Utils;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
@@ -26,10 +26,13 @@ public class Overview {
         Overview overview = new Overview();
         overview.status = "OK";
         InputStream in = Overview.class.getResourceAsStream("/VERSION");
-        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
         try {
+            assert in != null;
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
             overview.version = reader.readLine();
-        } catch (IOException e) {
+        } catch (Exception e) {
+            Utils.logger.warn("/VERSION file not fund in classpath, a file named VERSION which contains version information should be placed under the root folder of the jar file.");
+            Utils.logger.warn(e.getStackTrace());
             overview.version = "UNKNOWN";
         }
         return overview;
