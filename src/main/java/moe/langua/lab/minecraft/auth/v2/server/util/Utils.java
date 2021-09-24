@@ -183,8 +183,8 @@ public class Utils {
         }
 
         public static void writeJSONAndSend(HttpExchange httpExchange, int responseCode, String content) {
-            String response = appendNewLineIfNotEndWithANewLine(content);
-            writeAndSend(httpExchange, responseCode, "application/json", response.getBytes(UTF_8), response.length());
+            var response = appendNewLineIfNotEndWithANewLine(content).getBytes(UTF_8);
+            writeAndSend(httpExchange, responseCode, "application/json", response, response.length);
         }
 
         public static void writeAndSend(HttpExchange httpExchange, int responseCode, String contentType, byte[] content, long contentLength) {
