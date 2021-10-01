@@ -3,6 +3,9 @@
 ```shell script
 mvn package
 ```
+## How to use
+zh-cn: https://cicini.moe/article/1/
+
 If you want to modify the server port, please search for 11014 in `/src/main/java/moe/langua/lab/minecraft/auth/v2/serverEntry.kt` and modify it.
 
 Jenkins: https://ci.nyaacat.com/job/MelonAuth2-server/job/master/
