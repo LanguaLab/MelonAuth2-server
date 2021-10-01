@@ -6,7 +6,7 @@ mvn package
 ## How to use
 zh-cn: https://cicini.moe/article/1/
 
-If you want to modify the server port, please search for 11014 in `/src/main/java/moe/langua/lab/minecraft/auth/v2/serverEntry.kt` and modify it.
+If you want to modify the server port, please search for 11014 in `/src/main/java/moe/langua/lab/minecraft/auth/v2/serverEntry.kt` and modify it.(11014 is default port)
 
 Jenkins: https://ci.nyaacat.com/job/MelonAuth2-server/job/master/
 
